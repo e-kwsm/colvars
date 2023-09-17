@@ -150,7 +150,7 @@ int colvar::cvc::init_total_force_params(std::string const &conf)
 
   if (! is_enabled(f_cvc_one_site_total_force)) {
     // check whether any of the other atom groups is dummy
-    std::vector<cvm::atom_group *>::iterator agi = atom_groups.begin();
+    auto agi = atom_groups.begin();
     agi++;
     for ( ; agi != atom_groups.end(); agi++) {
       if ((*agi)->b_dummy) {
@@ -409,7 +409,7 @@ void colvar::cvc::register_atom_group(cvm::atom_group *ag)
 
 colvarvalue const *colvar::cvc::get_param_grad(std::string const &param_name)
 {
-  colvarvalue const *ptr =
+  auto const *ptr =
     reinterpret_cast<colvarvalue const *>(get_param_grad_ptr(param_name));
   return ptr != NULL ? ptr : NULL;
 }
