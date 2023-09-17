@@ -982,11 +982,11 @@ int cvm::atom_group::overlap(const atom_group &g1, const atom_group &g2){
 void cvm::atom_group::center_ref_pos()
 {
   ref_pos_cog = cvm::atom_pos(0.0, 0.0, 0.0);
-  for (std::vector<cvm::atom_pos>::iterator pi = ref_pos.begin(); pi != ref_pos.end(); ++pi) {
+  for (auto pi = ref_pos.begin(); pi != ref_pos.end(); ++pi) {
     ref_pos_cog += *pi;
   }
   ref_pos_cog /= (cvm::real) ref_pos.size();
-  for (std::vector<cvm::atom_pos>::iterator pi = ref_pos.begin(); pi != ref_pos.end(); ++pi) {
+  for (auto pi = ref_pos.begin(); pi != ref_pos.end(); ++pi) {
     (*pi) -= ref_pos_cog;
   }
 }
@@ -996,7 +996,7 @@ void cvm::atom_group::read_positions()
 {
   if (b_dummy) return;
 
-  for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+  for (auto ai = this->begin(); ai != this->end(); ai++) {
     ai->read_position();
   }
 
@@ -1095,7 +1095,7 @@ void cvm::atom_group::apply_translation(cvm::rvector const &t)
     return;
   }
 
-  for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+  for (auto ai = this->begin(); ai != this->end(); ai++) {
     ai->pos += t;
   }
 }
@@ -1115,7 +1115,7 @@ void cvm::atom_group::read_velocities()
 
   } else {
 
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+    for (auto ai = this->begin(); ai != this->end(); ai++) {
       ai->read_velocity();
     }
   }
@@ -1137,7 +1137,7 @@ void cvm::atom_group::read_total_forces()
 
   } else {
 
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+    for (auto ai = this->begin(); ai != this->end(); ai++) {
       ai->read_total_force();
     }
   }
@@ -1200,7 +1200,7 @@ void cvm::atom_group::set_weighted_gradient(cvm::rvector const &grad)
   scalar_com_gradient = grad;
 
   if (!is_enabled(f_ag_scalable)) {
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+    for (auto ai = this->begin(); ai != this->end(); ai++) {
       ai->grad = (ai->mass/total_mass) * grad;
     }
   }
@@ -1409,7 +1409,7 @@ void cvm::atom_group::apply_colvar_force(cvm::real const &force)
 
   } else {
 
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+    for (auto ai = this->begin(); ai != this->end(); ai++) {
       ai->apply_force(force * ai->grad);
     }
   }
@@ -1454,7 +1454,7 @@ void cvm::atom_group::apply_force(cvm::rvector const &force)
 
   } else {
 
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+    for (auto ai = this->begin(); ai != this->end(); ai++) {
       ai->apply_force((ai->mass/total_mass) * force);
     }
   }
