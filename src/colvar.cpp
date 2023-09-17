@@ -996,7 +996,7 @@ void colvar::build_atom_list(void)
   temp_id_list.sort();
   temp_id_list.unique();
 
-  for (std::list<int>::iterator li = temp_id_list.begin(); li != temp_id_list.end(); ++li) {
+  for (auto li = temp_id_list.begin(); li != temp_id_list.end(); ++li) {
     atom_ids.push_back(*li);
   }
 
@@ -1301,7 +1301,7 @@ colvar::~colvar()
 
   // remove reference to this colvar from the module
   colvarmodule *cv = cvm::main();
-  for (std::vector<colvar *>::iterator cvi = cv->variables()->begin();
+  for (auto cvi = cv->variables()->begin();
        cvi != cv->variables()->end();
        ++cvi) {
     if ( *cvi == this) {
@@ -2801,8 +2801,8 @@ void colvar::calc_vel_acf(std::list<colvarvalue> &v_list,
   // loop over stored velocities and add to the ACF, but only if the
   // length is sufficient to hold an entire row of ACF values
   if (v_list.size() >= acf_length+acf_offset) {
-    std::list<colvarvalue>::iterator  vs_i = v_list.begin();
-    std::vector<cvm::real>::iterator acf_i = acf.begin();
+    auto  vs_i = v_list.begin();
+    auto acf_i = acf.begin();
 
     for (size_t i = 0; i < acf_offset; i++)
       ++vs_i;
@@ -2825,8 +2825,8 @@ void colvar::calc_coor_acf(std::list<colvarvalue> &x_list,
 {
   // same as above but for coordinates
   if (x_list.size() >= acf_length+acf_offset) {
-    std::list<colvarvalue>::iterator  xs_i = x_list.begin();
-    std::vector<cvm::real>::iterator acf_i = acf.begin();
+    auto  xs_i = x_list.begin();
+    auto acf_i = acf.begin();
 
     for (size_t i = 0; i < acf_offset; i++)
       ++xs_i;
@@ -2846,8 +2846,8 @@ void colvar::calc_p2coor_acf(std::list<colvarvalue> &x_list,
   // same as above but with second order Legendre polynomial instead
   // of just the scalar product
   if (x_list.size() >= acf_length+acf_offset) {
-    std::list<colvarvalue>::iterator  xs_i = x_list.begin();
-    std::vector<cvm::real>::iterator acf_i = acf.begin();
+    auto  xs_i = x_list.begin();
+    auto acf_i = acf.begin();
 
     for (size_t i = 0; i < acf_offset; i++)
       ++xs_i;
@@ -2906,7 +2906,7 @@ int colvar::write_acf(std::ostream &os)
   cvm::real const acf_norm = acf.front() / cvm::real(acf_nframes);
 
   size_t it = acf_offset;
-  for (std::vector<cvm::real>::iterator acf_i = acf.begin(); acf_i != acf.end(); ++acf_i) {
+  for (auto acf_i = acf.begin(); acf_i != acf.end(); ++acf_i) {
     os << std::setw(cvm::it_width) << acf_stride * (it++) << " "
        << std::setprecision(cvm::cv_prec)
        << std::setw(cvm::cv_width)
@@ -2966,7 +2966,7 @@ int colvar::calc_runave()
         }
 
         runave = x;
-        for (std::list<colvarvalue>::iterator xs_i = (*x_history_p).begin();
+        for (auto xs_i = (*x_history_p).begin();
              xs_i != (*x_history_p).end(); ++xs_i) {
           runave += (*xs_i);
         }
@@ -2975,7 +2975,7 @@ int colvar::calc_runave()
 
         runave_variance = 0.0;
         runave_variance += this->dist2(x, runave);
-        for (std::list<colvarvalue>::iterator xs_i = (*x_history_p).begin();
+        for (auto xs_i = (*x_history_p).begin();
              xs_i != (*x_history_p).end(); ++xs_i) {
           runave_variance += this->dist2(x, (*xs_i));
         }
