@@ -312,11 +312,11 @@ int cvm::atom_group::setup()
 {
   if (atoms_ids.size() == 0) {
     atoms_ids.reserve(atoms.size());
-    for (cvm::atom_iter ai = atoms.begin(); ai != atoms.end(); ai++) {
+    for (auto ai = atoms.begin(); ai != atoms.end(); ai++) {
       atoms_ids.push_back(ai->id);
     }
   }
-  for (cvm::atom_iter ai = atoms.begin(); ai != atoms.end(); ai++) {
+  for (auto ai = atoms.begin(); ai != atoms.end(); ai++) {
     ai->update_mass();
     ai->update_charge();
   }
@@ -344,7 +344,7 @@ void cvm::atom_group::update_total_mass()
     total_mass = (cvm::main()->proxy)->get_atom_group_mass(index);
   } else {
     total_mass = 0.0;
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+    for (auto ai = this->begin(); ai != this->end(); ai++) {
       total_mass += ai->mass;
     }
   }
@@ -365,7 +365,7 @@ void cvm::atom_group::update_total_charge()
     total_charge = (cvm::main()->proxy)->get_atom_group_charge(index);
   } else {
     total_charge = 0.0;
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+    for (auto ai = this->begin(); ai != this->end(); ai++) {
       total_charge += ai->charge;
     }
   }
@@ -488,7 +488,7 @@ int cvm::atom_group::parse(std::string const &group_conf)
   {
     std::vector<std::string> psf_segids;
     get_keyval(group_conf, "psfSegID", psf_segids, std::vector<std::string>());
-    for (std::vector<std::string>::iterator psii = psf_segids.begin(); psii < psf_segids.end(); ++psii) {
+    for (auto psii = psf_segids.begin(); psii < psf_segids.end(); ++psii) {
       if ( (psii->size() == 0) || (psii->size() > 4) ) {
         cvm::error("Error: invalid PSF segment identifier provided, \""+
                    (*psii)+"\".\n", COLVARS_INPUT_ERROR);
@@ -498,7 +498,7 @@ int cvm::atom_group::parse(std::string const &group_conf)
     std::string range_conf = "";
     size_t pos = 0;
     size_t range_count = 0;
-    std::vector<std::string>::iterator psii = psf_segids.begin();
+    auto psii = psf_segids.begin();
     while (key_lookup(group_conf, "atomNameResidueRange",
                       &range_conf, &pos)) {
       range_count++;
@@ -956,7 +956,7 @@ int cvm::atom_group::create_sorted_ids()
   sorted_atoms_ids.resize(atoms_ids.size());
   sorted_atoms_ids_map.resize(atoms_ids.size());
   size_t ii = 0;
-  for (std::list<int>::iterator lsii = sorted_atoms_ids_list.begin(); ii < atoms_ids.size(); lsii++, ii++) {
+  for (auto lsii = sorted_atoms_ids_list.begin(); ii < atoms_ids.size(); lsii++, ii++) {
     sorted_atoms_ids[ii] = *lsii;
     size_t const pos = std::find(atoms_ids.begin(), atoms_ids.end(), *lsii) -
       atoms_ids.begin();
