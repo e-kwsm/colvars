@@ -529,7 +529,7 @@ int colvarmodule::parse_biases_type(std::string const &conf,
 
   // Check how many times this bias keyword was used, set default name
   // accordingly
-  std::map<std::string, int> *num_biases_types_used =
+  auto *num_biases_types_used =
     reinterpret_cast<std::map<std::string, int> *>(num_biases_types_used_);
   if (num_biases_types_used->count(type_keyword) == 0) {
     (*num_biases_types_used)[type_keyword] = 0;
@@ -714,7 +714,7 @@ int colvarmodule::catch_input_errors(int result)
 colvarbias * colvarmodule::bias_by_name(std::string const &name)
 {
   colvarmodule *cv = cvm::main();
-  for (std::vector<colvarbias *>::iterator bi = cv->biases.begin();
+  for (auto bi = cv->biases.begin();
        bi != cv->biases.end();
        bi++) {
     if ((*bi)->name == name) {
@@ -728,7 +728,7 @@ colvarbias * colvarmodule::bias_by_name(std::string const &name)
 colvar *colvarmodule::colvar_by_name(std::string const &name)
 {
   colvarmodule *cv = cvm::main();
-  for (std::vector<colvar *>::iterator cvi = cv->colvars.begin();
+  for (auto cvi = cv->colvars.begin();
        cvi != cv->colvars.end();
        cvi++) {
     if ((*cvi)->name == name) {
@@ -742,7 +742,7 @@ colvar *colvarmodule::colvar_by_name(std::string const &name)
 cvm::atom_group *colvarmodule::atom_group_by_name(std::string const &name)
 {
   colvarmodule *cv = cvm::main();
-  for (std::vector<cvm::atom_group *>::iterator agi = cv->named_atom_groups.begin();
+  for (auto agi = cv->named_atom_groups.begin();
        agi != cv->named_atom_groups.end();
        agi++) {
     if ((*agi)->name == name) {
@@ -760,7 +760,7 @@ void colvarmodule::register_named_atom_group(atom_group *ag) {
 
 void colvarmodule::unregister_named_atom_group(cvm::atom_group *ag)
 {
-  for (std::vector<cvm::atom_group *>::iterator agi = named_atom_groups.begin();
+  for (auto agi = named_atom_groups.begin();
        agi != named_atom_groups.end();
        agi++) {
     if (*agi == ag) {
@@ -869,7 +869,7 @@ int colvarmodule::calc()
 
   // Write output files for biases, at the specified frequency for each
   cvm::increase_depth();
-  for (std::vector<colvarbias *>::iterator bi = biases.begin();
+  for (auto bi = biases.begin();
        bi != biases.end();
        bi++) {
     if ((*bi)->output_freq > 0) {
@@ -898,7 +898,7 @@ int colvarmodule::calc_colvars()
 
   // First, we need to decide which biases are awake
   // so they can activate colvars as needed
-  for (std::vector<colvarbias *>::iterator bi = biases.begin(); bi != biases.end(); bi++) {
+  for (auto bi = biases.begin(); bi != biases.end(); bi++) {
     int const tsf = (*bi)->get_time_step_factor();
     if (tsf > 1) {
       if (step_absolute() % tsf == 0) {
@@ -914,7 +914,7 @@ int colvarmodule::calc_colvars()
   // Determine which colvars are active at this iteration
   variables_active()->clear();
   variables_active()->reserve(variables()->size());
-  for (std::vector<colvar *>::iterator cvi = variables()->begin(); cvi != variables()->end(); cvi++) {
+  for (auto cvi = variables()->begin(); cvi != variables()->end(); cvi++) {
     // Wake up or put to sleep variables with MTS
     int tsf = (*cvi)->get_time_step_factor();
     if (tsf > 1) {
@@ -943,7 +943,7 @@ int colvarmodule::calc_colvars()
 
     // set up a vector containing all components
     cvm::increase_depth();
-    for (std::vector<colvar *>::iterator cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
+    for (auto cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
 
       error_code |= (*cvi)->update_cvc_flags();
 
@@ -961,7 +961,7 @@ int colvarmodule::calc_colvars()
     error_code |= proxy->smp_colvars_loop();
 
     cvm::increase_depth();
-    for (std::vector<colvar *>::iterator cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
+    for (auto cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
       error_code |= (*cvi)->collect_cvc_data();
     }
     cvm::decrease_depth();
@@ -970,7 +970,7 @@ int colvarmodule::calc_colvars()
 
     // calculate colvars one at a time
     cvm::increase_depth();
-    for (std::vector<colvar *>::iterator cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
+    for (auto cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
       error_code |= (*cvi)->calc();
       if (cvm::get_error()) {
         return COLVARS_ERROR;
@@ -992,7 +992,7 @@ int colvarmodule::calc_biases()
     cvm::log("Updating collective variable biases.\n");
 
   // set biasing forces to zero before biases are calculated and summed over
-  for (std::vector<colvar *>::iterator cvi = colvars.begin();
+  for (auto cvi = colvars.begin();
        cvi != colvars.end(); cvi++) {
     (*cvi)->reset_bias_force();
   }
@@ -1006,7 +1006,7 @@ int colvarmodule::calc_biases()
   // which may have changed based on f_cvb_awake in calc_colvars()
   biases_active()->clear();
   biases_active()->reserve(biases.size());
-  for (std::vector<colvarbias *>::iterator bi = biases.begin(); bi != biases.end(); bi++) {
+  for (auto bi = biases.begin(); bi != biases.end(); bi++) {
     if ((*bi)->is_enabled()) {
       biases_active()->push_back(*bi);
     }
@@ -1039,7 +1039,7 @@ int colvarmodule::calc_biases()
 
     // Straight loop over biases on a single thread
     cvm::increase_depth();
-    for (std::vector<colvarbias *>::iterator bi = biases_active()->begin(); bi != biases_active()->end(); bi++) {
+    for (auto bi = biases_active()->begin(); bi != biases_active()->end(); bi++) {
       error_code |= (*bi)->update();
       if (cvm::get_error()) {
         cvm::decrease_depth();
