@@ -996,8 +996,7 @@ void colvar::build_atom_list(void)
   temp_id_list.sort();
   temp_id_list.unique();
 
-  std::list<int>::iterator li;
-  for (li = temp_id_list.begin(); li != temp_id_list.end(); ++li) {
+  for (std::list<int>::iterator li = temp_id_list.begin(); li != temp_id_list.end(); ++li) {
     atom_ids.push_back(*li);
   }
 
@@ -2906,9 +2905,8 @@ int colvar::write_acf(std::ostream &os)
 
   cvm::real const acf_norm = acf.front() / cvm::real(acf_nframes);
 
-  std::vector<cvm::real>::iterator acf_i;
   size_t it = acf_offset;
-  for (acf_i = acf.begin(); acf_i != acf.end(); ++acf_i) {
+  for (std::vector<cvm::real>::iterator acf_i = acf.begin(); acf_i != acf.end(); ++acf_i) {
     os << std::setw(cvm::it_width) << acf_stride * (it++) << " "
        << std::setprecision(cvm::cv_prec)
        << std::setw(cvm::cv_width)
@@ -2968,8 +2966,7 @@ int colvar::calc_runave()
         }
 
         runave = x;
-        std::list<colvarvalue>::iterator xs_i;
-        for (xs_i = (*x_history_p).begin();
+        for (std::list<colvarvalue>::iterator xs_i = (*x_history_p).begin();
              xs_i != (*x_history_p).end(); ++xs_i) {
           runave += (*xs_i);
         }
@@ -2978,7 +2975,7 @@ int colvar::calc_runave()
 
         runave_variance = 0.0;
         runave_variance += this->dist2(x, runave);
-        for (xs_i = (*x_history_p).begin();
+        for (std::list<colvarvalue>::iterator xs_i = (*x_history_p).begin();
              xs_i != (*x_history_p).end(); ++xs_i) {
           runave_variance += this->dist2(x, (*xs_i));
         }

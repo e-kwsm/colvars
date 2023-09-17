@@ -96,11 +96,9 @@ CVSCRIPT(colvar_getatomgroups,
          "",
          std::string result;
          std::vector<std::vector<int> > lists = this_colvar->get_atom_lists();
-         std::vector<std::vector<int> >::iterator li = lists.begin();
-         for ( ; li != lists.end(); ++li) {
+         for (std::vector<std::vector<int> >::iterator li = lists.begin(); li != lists.end(); ++li) {
            result += "{";
-           std::vector<int>::iterator lj = (*li).begin();
-           for ( ; lj != (*li).end(); ++lj) {
+           for (std::vector<int>::iterator lj = (*li).begin(); lj != (*li).end(); ++lj) {
              result += cvm::to_str(*lj);
              result += " ";
            }

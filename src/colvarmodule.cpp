@@ -898,8 +898,7 @@ int colvarmodule::calc_colvars()
 
   // First, we need to decide which biases are awake
   // so they can activate colvars as needed
-  std::vector<colvarbias *>::iterator bi;
-  for (bi = biases.begin(); bi != biases.end(); bi++) {
+  for (std::vector<colvarbias *>::iterator bi = biases.begin(); bi != biases.end(); bi++) {
     int const tsf = (*bi)->get_time_step_factor();
     if (tsf > 1) {
       if (step_absolute() % tsf == 0) {
@@ -911,12 +910,11 @@ int colvarmodule::calc_colvars()
   }
 
   int error_code = COLVARS_OK;
-  std::vector<colvar *>::iterator cvi;
 
   // Determine which colvars are active at this iteration
   variables_active()->clear();
   variables_active()->reserve(variables()->size());
-  for (cvi = variables()->begin(); cvi != variables()->end(); cvi++) {
+  for (std::vector<colvar *>::iterator cvi = variables()->begin(); cvi != variables()->end(); cvi++) {
     // Wake up or put to sleep variables with MTS
     int tsf = (*cvi)->get_time_step_factor();
     if (tsf > 1) {
@@ -945,7 +943,7 @@ int colvarmodule::calc_colvars()
 
     // set up a vector containing all components
     cvm::increase_depth();
-    for (cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
+    for (std::vector<colvar *>::iterator cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
 
       error_code |= (*cvi)->update_cvc_flags();
 
@@ -963,7 +961,7 @@ int colvarmodule::calc_colvars()
     error_code |= proxy->smp_colvars_loop();
 
     cvm::increase_depth();
-    for (cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
+    for (std::vector<colvar *>::iterator cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
       error_code |= (*cvi)->collect_cvc_data();
     }
     cvm::decrease_depth();
@@ -972,7 +970,7 @@ int colvarmodule::calc_colvars()
 
     // calculate colvars one at a time
     cvm::increase_depth();
-    for (cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
+    for (std::vector<colvar *>::iterator cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
       error_code |= (*cvi)->calc();
       if (cvm::get_error()) {
         return COLVARS_ERROR;
@@ -999,7 +997,6 @@ int colvarmodule::calc_biases()
     (*cvi)->reset_bias_force();
   }
 
-  std::vector<colvarbias *>::iterator bi;
   int error_code = COLVARS_OK;
 
   // Total bias energy is reset before calling scripted biases
@@ -1009,7 +1006,7 @@ int colvarmodule::calc_biases()
   // which may have changed based on f_cvb_awake in calc_colvars()
   biases_active()->clear();
   biases_active()->reserve(biases.size());
-  for (bi = biases.begin(); bi != biases.end(); bi++) {
+  for (std::vector<colvarbias *>::iterator bi = biases.begin(); bi != biases.end(); bi++) {
     if ((*bi)->is_enabled()) {
       biases_active()->push_back(*bi);
     }
@@ -1042,7 +1039,7 @@ int colvarmodule::calc_biases()
 
     // Straight loop over biases on a single thread
     cvm::increase_depth();
-    for (bi = biases_active()->begin(); bi != biases_active()->end(); bi++) {
+    for (std::vector<colvarbias *>::iterator bi = biases_active()->begin(); bi != biases_active()->end(); bi++) {
       error_code |= (*bi)->update();
       if (cvm::get_error()) {
         cvm::decrease_depth();
@@ -1052,7 +1049,7 @@ int colvarmodule::calc_biases()
     cvm::decrease_depth();
   }
 
-  for (bi = biases_active()->begin(); bi != biases_active()->end(); bi++) {
+  for (std::vector<colvarbias *>::iterator bi = biases_active()->begin(); bi != biases_active()->end(); bi++) {
     total_bias_energy += (*bi)->get_energy();
   }
 
@@ -1064,14 +1061,12 @@ int colvarmodule::update_colvar_forces()
 {
   int error_code = COLVARS_OK;
 
-  std::vector<colvar *>::iterator cvi;
-  std::vector<colvarbias *>::iterator bi;
-
   // sum the forces from all biases for each collective variable
   if (cvm::debug() && num_biases())
     cvm::log("Collecting forces from all biases.\n");
   cvm::increase_depth();
-  for (bi = biases_active()->begin(); bi != biases_active()->end(); bi++) {
+
+  for (std::vector<colvarbias *>::iterator bi = biases_active()->begin(); bi != biases_active()->end(); bi++) {
     error_code |= (*bi)->communicate_forces();
   }
   cvm::decrease_depth();
@@ -1093,7 +1088,7 @@ int colvarmodule::update_colvar_forces()
     cvm::log("Updating the internal degrees of freedom "
              "of colvars (if they have any).\n");
   cvm::increase_depth();
-  for (cvi = variables()->begin(); cvi != variables()->end(); cvi++) {
+  for (std::vector<colvar *>::iterator cvi = variables()->begin(); cvi != variables()->end(); cvi++) {
     // Inactive colvars will only reset their forces and return 0 energy
     total_colvar_energy += (*cvi)->update_forces_energy();
   }
@@ -1107,7 +1102,7 @@ int colvarmodule::update_colvar_forces()
   if (cvm::debug())
     cvm::log("Communicating forces from the colvars to the atoms.\n");
   cvm::increase_depth();
-  for (cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
+  for (std::vector<colvar *>::iterator cvi = variables_active()->begin(); cvi != variables_active()->end(); cvi++) {
     if ((*cvi)->is_enabled(colvardeps::f_cv_gradient)) {
       (*cvi)->communicate_forces();
       if (cvm::get_error()) {
@@ -2567,15 +2562,12 @@ std::string colvarmodule::usage::report(int flag)
     result += "Colvars module (Fiorin2013, plus other works listed for specific features)\n\n";
   }
 
-  std::map<std::string, int>::iterator p_iter = paper_count_.begin();
-  for ( ; p_iter != paper_count_.end(); p_iter++) {
+  for (std::map<std::string, int>::iterator p_iter = paper_count_.begin(); p_iter != paper_count_.end(); p_iter++) {
     std::string const paper = p_iter->first;
     int const count = p_iter->second;
     if (count > 0) {
       result += "\n";
-      std::map<std::string, std::string>::iterator f_iter =
-        feature_paper_map_.begin();
-      for ( ; f_iter != feature_paper_map_.end(); f_iter++) {
+      for (std::map<std::string, std::string>::iterator f_iter = feature_paper_map_.begin() ; f_iter != feature_paper_map_.end(); f_iter++) {
         if ((f_iter->second == paper) &&
             (feature_count_[f_iter->first] > 0)) {
           if (flag == 0) {

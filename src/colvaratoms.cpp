@@ -488,8 +488,7 @@ int cvm::atom_group::parse(std::string const &group_conf)
   {
     std::vector<std::string> psf_segids;
     get_keyval(group_conf, "psfSegID", psf_segids, std::vector<std::string>());
-    std::vector<std::string>::iterator psii;
-    for (psii = psf_segids.begin(); psii < psf_segids.end(); ++psii) {
+    for (std::vector<std::string>::iterator psii = psf_segids.begin(); psii < psf_segids.end(); ++psii) {
       if ( (psii->size() == 0) || (psii->size() > 4) ) {
         cvm::error("Error: invalid PSF segment identifier provided, \""+
                    (*psii)+"\".\n", COLVARS_INPUT_ERROR);
@@ -499,7 +498,7 @@ int cvm::atom_group::parse(std::string const &group_conf)
     std::string range_conf = "";
     size_t pos = 0;
     size_t range_count = 0;
-    psii = psf_segids.begin();
+    std::vector<std::string>::iterator psii = psf_segids.begin();
     while (key_lookup(group_conf, "atomNameResidueRange",
                       &range_conf, &pos)) {
       range_count++;
@@ -956,9 +955,8 @@ int cvm::atom_group::create_sorted_ids()
   // Compute map between sorted and unsorted elements
   sorted_atoms_ids.resize(atoms_ids.size());
   sorted_atoms_ids_map.resize(atoms_ids.size());
-  std::list<int>::iterator lsii = sorted_atoms_ids_list.begin();
   size_t ii = 0;
-  for ( ; ii < atoms_ids.size(); lsii++, ii++) {
+  for (std::list<int>::iterator lsii = sorted_atoms_ids_list.begin(); ii < atoms_ids.size(); lsii++, ii++) {
     sorted_atoms_ids[ii] = *lsii;
     size_t const pos = std::find(atoms_ids.begin(), atoms_ids.end(), *lsii) -
       atoms_ids.begin();
@@ -984,12 +982,11 @@ int cvm::atom_group::overlap(const atom_group &g1, const atom_group &g2){
 void cvm::atom_group::center_ref_pos()
 {
   ref_pos_cog = cvm::atom_pos(0.0, 0.0, 0.0);
-  std::vector<cvm::atom_pos>::iterator pi;
-  for (pi = ref_pos.begin(); pi != ref_pos.end(); ++pi) {
+  for (std::vector<cvm::atom_pos>::iterator pi = ref_pos.begin(); pi != ref_pos.end(); ++pi) {
     ref_pos_cog += *pi;
   }
   ref_pos_cog /= (cvm::real) ref_pos.size();
-  for (pi = ref_pos.begin(); pi != ref_pos.end(); ++pi) {
+  for (std::vector<cvm::atom_pos>::iterator pi = ref_pos.begin(); pi != ref_pos.end(); ++pi) {
     (*pi) -= ref_pos_cog;
   }
 }
@@ -1296,8 +1293,7 @@ std::vector<cvm::atom_pos> cvm::atom_group::positions() const
 
   std::vector<cvm::atom_pos> x(this->size(), 0.0);
   cvm::atom_const_iter ai = this->begin();
-  std::vector<cvm::atom_pos>::iterator xi = x.begin();
-  for ( ; ai != this->end(); ++xi, ++ai) {
+  for (std::vector<cvm::atom_pos>::iterator xi = x.begin(); ai != this->end(); ++xi, ++ai) {
     *xi = ai->pos;
   }
   return x;
@@ -1317,8 +1313,7 @@ std::vector<cvm::atom_pos> cvm::atom_group::positions_shifted(cvm::rvector const
 
   std::vector<cvm::atom_pos> x(this->size(), 0.0);
   cvm::atom_const_iter ai = this->begin();
-  std::vector<cvm::atom_pos>::iterator xi = x.begin();
-  for ( ; ai != this->end(); ++xi, ++ai) {
+  for (std::vector<cvm::atom_pos>::iterator xi = x.begin(); ai != this->end(); ++xi, ++ai) {
     *xi = (ai->pos + shift);
   }
   return x;
@@ -1338,8 +1333,7 @@ std::vector<cvm::rvector> cvm::atom_group::velocities() const
 
   std::vector<cvm::rvector> v(this->size(), 0.0);
   cvm::atom_const_iter ai = this->begin();
-  std::vector<cvm::atom_pos>::iterator vi = v.begin();
-  for ( ; ai != this->end(); vi++, ai++) {
+  for (std::vector<cvm::atom_pos>::iterator vi = v.begin(); ai != this->end(); vi++, ai++) {
     *vi = ai->vel;
   }
   return v;
@@ -1359,8 +1353,7 @@ std::vector<cvm::rvector> cvm::atom_group::total_forces() const
 
   std::vector<cvm::rvector> f(this->size(), 0.0);
   cvm::atom_const_iter ai = this->begin();
-  std::vector<cvm::atom_pos>::iterator fi = f.begin();
-  for ( ; ai != this->end(); ++fi, ++ai) {
+  for (std::vector<cvm::atom_pos>::iterator fi = f.begin(); ai != this->end(); ++fi, ++ai) {
     *fi = ai->total_force;
   }
   return f;
