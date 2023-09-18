@@ -462,27 +462,27 @@ void colvar::distance_inv::calc_value()
 {
   x.real_value = 0.0;
   if (!is_enabled(f_cvc_pbc_minimum_image)) {
-    for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
-      for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
-        cvm::rvector const dv = ai2->pos - ai1->pos;
+    for (auto &ai1 : *group1) {
+      for (auto &ai2 : *group2) {
+        cvm::rvector const dv = ai2.pos - ai1.pos;
         cvm::real const d2 = dv.norm2();
         cvm::real const dinv = cvm::integer_power(d2, -1*(exponent/2));
         x.real_value += dinv;
         cvm::rvector const dsumddv = -1.0*(exponent/2) * dinv/d2 * 2.0 * dv;
-        ai1->grad += -1.0 * dsumddv;
-        ai2->grad +=        dsumddv;
+        ai1.grad += -1.0 * dsumddv;
+        ai2.grad +=        dsumddv;
       }
     }
   } else {
-    for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
-      for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
-        cvm::rvector const dv = cvm::position_distance(ai1->pos, ai2->pos);
+    for (auto &ai1 : *group1) {
+      for (auto &ai2 : *group2) {
+        cvm::rvector const dv = cvm::position_distance(ai1.pos, ai2.pos);
         cvm::real const d2 = dv.norm2();
         cvm::real const dinv = cvm::integer_power(d2, -1*(exponent/2));
         x.real_value += dinv;
         cvm::rvector const dsumddv = -1.0*(exponent/2) * dinv/d2 * 2.0 * dv;
-        ai1->grad += -1.0 * dsumddv;
-        ai2->grad +=        dsumddv;
+        ai1.grad += -1.0 * dsumddv;
+        ai2.grad +=        dsumddv;
       }
     }
   }
@@ -493,11 +493,11 @@ void colvar::distance_inv::calc_value()
   cvm::real const dxdsum = (-1.0/(cvm::real(exponent))) *
     cvm::integer_power(x.real_value, exponent+1) /
     cvm::real(group1->size() * group2->size());
-  for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
-    ai1->grad *= dxdsum;
+  for (auto &ai1 : *group1) {
+    ai1.grad *= dxdsum;
   }
-  for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
-    ai2->grad *= dxdsum;
+  for (auto &ai2 : *group2) {
+    ai2.grad *= dxdsum;
   }
 }
 
@@ -642,8 +642,8 @@ void colvar::dipole_magnitude::calc_gradients()
   cvm::real const aux1 = atoms->total_charge/atoms->total_mass;
   cvm::atom_pos const dipVunit = dipoleV.unit();
 
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
-    ai->grad = (ai->charge - aux1*ai->mass) * dipVunit;
+  for (auto &atom : *atoms) {
+    atom.grad = (atom.charge - aux1 * atom.mass) * dipVunit;
   }
 }
 
@@ -679,8 +679,8 @@ int colvar::gyration::init(std::string const &conf)
 void colvar::gyration::calc_value()
 {
   x.real_value = 0.0;
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
-    x.real_value += (ai->pos).norm2();
+  for (auto &atom : *atoms) {
+    x.real_value += (atom.pos).norm2();
   }
   x.real_value = cvm::sqrt(x.real_value / cvm::real(atoms->size()));
 }
@@ -689,8 +689,8 @@ void colvar::gyration::calc_value()
 void colvar::gyration::calc_gradients()
 {
   cvm::real const drdx = 1.0/(cvm::real(atoms->size()) * x.real_value);
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
-    ai->grad = drdx * ai->pos;
+  for (auto &atom : *atoms) {
+    atom.grad = drdx * atom.pos;
   }
 }
 
@@ -702,8 +702,8 @@ void colvar::gyration::calc_force_invgrads()
   cvm::real const dxdr = 1.0/x.real_value;
   ft.real_value = 0.0;
 
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
-    ft.real_value += dxdr * ai->pos * ai->total_force;
+  for (auto &atom : *atoms) {
+    ft.real_value += dxdr * atom.pos * atom.total_force;
   }
 }
 
@@ -724,16 +724,16 @@ colvar::inertia::inertia()
 void colvar::inertia::calc_value()
 {
   x.real_value = 0.0;
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
-    x.real_value += (ai->pos).norm2();
+  for (auto &atom : *atoms) {
+    x.real_value += (atom.pos).norm2();
   }
 }
 
 
 void colvar::inertia::calc_gradients()
 {
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
-    ai->grad = 2.0 * ai->pos;
+  for (auto &atom : *atoms) {
+    atom.grad = 2.0 * atom.pos;
   }
 }
 
@@ -764,8 +764,8 @@ int colvar::inertia_z::init(std::string const &conf)
 void colvar::inertia_z::calc_value()
 {
   x.real_value = 0.0;
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
-    cvm::real const iprod = ai->pos * axis;
+  for (auto &atom : *atoms) {
+    cvm::real const iprod = atom.pos * axis;
     x.real_value += iprod * iprod;
   }
 }
@@ -773,8 +773,8 @@ void colvar::inertia_z::calc_value()
 
 void colvar::inertia_z::calc_gradients()
 {
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
-    ai->grad = 2.0 * (ai->pos * axis) * axis;
+  for (auto &atom : *atoms) {
+    atom.grad = 2.0 * (atom.pos * axis) * axis;
   }
 }
 
@@ -945,8 +945,8 @@ void colvar::rmsd::calc_value()
   size_t ref_pos_index = atoms->size();
   for (size_t ip = 1; ip < n_permutations; ip++) {
     cvm::real value = 0.0;
-    for (size_t ia = 0; ia < atoms->size(); ia++) {
-      value += ((*atoms)[ia].pos - ref_pos[ref_pos_index++]).norm2();
+    for (auto &atom : *atoms) {
+      value += (atom.pos - ref_pos[ref_pos_index++]).norm2();
     }
     if (value < x.real_value) {
       x.real_value = value;
@@ -979,8 +979,8 @@ void colvar::rmsd::calc_force_invgrads()
 
   // Note: gradient square norm is 1/N_atoms
 
-  for (size_t ia = 0; ia < atoms->size(); ia++) {
-    ft.real_value += (*atoms)[ia].grad * (*atoms)[ia].total_force;
+  for (auto &atom : *atoms) {
+    ft.real_value += atom.grad * atom.total_force;
   }
   ft.real_value *= atoms->size();
 }
@@ -1277,9 +1277,9 @@ void colvar::eigenvector::calc_force_invgrads()
   atoms->read_total_forces();
   ft.real_value = 0.0;
 
-  for (size_t ia = 0; ia < atoms->size(); ia++) {
-    ft.real_value += eigenvec_invnorm2 * (*atoms)[ia].grad *
-      (*atoms)[ia].total_force;
+  for (auto &atom : *atoms) {
+    ft.real_value += eigenvec_invnorm2 * atom.grad *
+      atom.total_force;
   }
 }
 

@@ -381,11 +381,8 @@ int colvarproxy_io::delete_input_stream(std::string const &input_name)
 
 int colvarproxy_io::close_input_streams()
 {
-  for (std::map<std::string,
-         std::istream *>::iterator ii = input_streams_.begin();
-       ii != input_streams_.end();
-       ii++) {
-    delete ii->second;
+  for (auto &ii : input_streams_) {
+    delete ii.second;
   }
   input_streams_.clear();
   return COLVARS_OK;
@@ -395,11 +392,8 @@ int colvarproxy_io::close_input_streams()
 std::list<std::string> colvarproxy_io::list_input_stream_names() const
 {
   std::list<std::string> result;
-  for (std::map<std::string,
-         std::istream *>::const_iterator ii = input_streams_.begin();
-       ii != input_streams_.end();
-       ii++) {
-    result.push_back(ii->first);
+  for (const auto &ii : input_streams_) {
+    result.push_back(ii.first);
   }
   return result;
 }
@@ -462,10 +456,8 @@ int colvarproxy_io::flush_output_streams()
     return COLVARS_OK;
   }
 
-  for (std::map<std::string, std::ostream *>::iterator osi = output_streams_.begin();
-       osi != output_streams_.end();
-       osi++) {
-    (dynamic_cast<std::ofstream *>(osi->second))->flush();
+  for (auto &osi : output_streams_) {
+    (dynamic_cast<std::ofstream *>(osi.second))->flush();
   }
 
   return COLVARS_OK;

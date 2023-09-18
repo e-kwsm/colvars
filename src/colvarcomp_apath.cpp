@@ -299,14 +299,14 @@ void colvar::aspathCV::calc_gradients() {
             // compute the gradient (grad) with respect to the i-th CV
             colvarvalue grad(cv[i_cv]->value().type());
             // sum up derivatives with respect to all frames
-            for (size_t m_frame = 0; m_frame < impl_->dsdx.size(); ++m_frame) {
+            for (auto &m_frame : impl_->dsdx) {
                 // dsdx is the derivative of s with respect to the m-th frame
-                grad += impl_->dsdx[m_frame][i_cv];
+                grad += m_frame[i_cv];
             }
             for (size_t j_elem = 0; j_elem < cv[i_cv]->value().size(); ++j_elem) {
-                for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
-                    for (size_t l_atom = 0; l_atom < (cv[i_cv]->atom_groups)[k_ag]->size(); ++l_atom) {
-                        (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad = grad[j_elem] * factor_polynomial * (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad;
+                for (auto &atom_group : cv[i_cv]->atom_groups) {
+                    for (auto &l_atom : *atom_group) {
+                        l_atom.grad = grad[j_elem] * factor_polynomial * l_atom.grad;
                     }
                 }
             }
@@ -317,16 +317,16 @@ void colvar::aspathCV::calc_gradients() {
 void colvar::aspathCV::apply_force(colvarvalue const &force) {
     for (size_t i_cv = 0; i_cv < cv.size(); ++i_cv) {
         if (cv[i_cv]->is_enabled(f_cvc_explicit_gradient)) {
-            for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
-                (cv[i_cv]->atom_groups)[k_ag]->apply_colvar_force(force.real_value);
+            for (auto &atom_group : cv[i_cv]->atom_groups) {
+                atom_group->apply_colvar_force(force.real_value);
             }
         } else {
             cvm::real factor_polynomial = getPolynomialFactorOfCVGradient(i_cv);
             // compute the gradient (grad) with respect to the i-th CV
             colvarvalue grad(cv[i_cv]->value().type());
-            for (size_t m_frame = 0; m_frame < impl_->dsdx.size(); ++m_frame) {
+            for (auto &m_frame : impl_->dsdx) {
                 // dsdx is the derivative of s with respect to the m-th frame
-                grad += impl_->dsdx[m_frame][i_cv];
+                grad += m_frame[i_cv];
             }
             grad *= factor_polynomial;
             cv[i_cv]->apply_force(force.real_value * grad);
@@ -402,14 +402,14 @@ void colvar::azpathCV::calc_gradients() {
             // compute the gradient (grad) with respect to the i-th CV
             colvarvalue grad(cv[i_cv]->value().type());
             // sum up derivatives with respect to all frames
-            for (size_t m_frame = 0; m_frame < impl_->dzdx.size(); ++m_frame) {
+            for (auto &m_frame : impl_->dzdx) {
                 // dzdx is the derivative of z with respect to the m-th frame
-                grad += impl_->dzdx[m_frame][i_cv];
+                grad += m_frame[i_cv];
             }
             for (size_t j_elem = 0; j_elem < cv[i_cv]->value().size(); ++j_elem) {
-                for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
-                    for (size_t l_atom = 0; l_atom < (cv[i_cv]->atom_groups)[k_ag]->size(); ++l_atom) {
-                        (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad = grad[j_elem] * factor_polynomial * (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad;
+                for (auto &atom_group : cv[i_cv]->atom_groups) {
+                    for (auto &l_atom : *atom_group) {
+                        l_atom.grad = grad[j_elem] * factor_polynomial * l_atom.grad;
                     }
                 }
             }
@@ -421,16 +421,16 @@ void colvar::azpathCV::apply_force(colvarvalue const &force) {
     // the PCV component itself is a scalar, so force should be scalar
     for (size_t i_cv = 0; i_cv < cv.size(); ++i_cv) {
         if (cv[i_cv]->is_enabled(f_cvc_explicit_gradient)) {
-            for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
-                (cv[i_cv]->atom_groups)[k_ag]->apply_colvar_force(force.real_value);
+            for (auto &atom_group : cv[i_cv]->atom_groups) {
+                atom_group->apply_colvar_force(force.real_value);
             }
         } else {
             const cvm::real factor_polynomial = getPolynomialFactorOfCVGradient(i_cv);
             // compute the gradient (grad) with respect to the i-th CV
             colvarvalue grad(cv[i_cv]->value().type());
-            for (size_t m_frame = 0; m_frame < impl_->dzdx.size(); ++m_frame) {
+            for (auto &m_frame : impl_->dzdx) {
                 // dzdx is the derivative of z with respect to the m-th frame
-                grad += impl_->dzdx[m_frame][i_cv];
+                grad += m_frame[i_cv];
             }
             grad *= factor_polynomial;
             cv[i_cv]->apply_force(force.real_value * grad);

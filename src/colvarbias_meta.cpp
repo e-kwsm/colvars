@@ -633,12 +633,12 @@ int colvarbias_meta::update_grid_data()
     // TODO: we may want to condense all into one replicas array,
     // including "this" as the first element
     if (comm == multiple_replicas) {
-      for (size_t ir = 0; ir < replicas.size(); ir++) {
-        replicas[ir]->project_hills(replicas[ir]->new_hills_begin,
-                                    replicas[ir]->hills.end(),
-                                    replicas[ir]->hills_energy,
-                                    replicas[ir]->hills_energy_gradients);
-        replicas[ir]->new_hills_begin = replicas[ir]->hills.end();
+      for (auto &replica : replicas) {
+        replica->project_hills(replica->new_hills_begin,
+                               replica->hills.end(),
+                               replica->hills_energy,
+                               replica->hills_energy_gradients);
+        replica->new_hills_begin = replica->hills.end();
       }
     }
   }
@@ -1045,14 +1045,14 @@ int colvarbias_meta::update_replicas_registry()
       }
 
       bool already_loaded = false;
-      for (size_t ir = 0; ir < replicas.size(); ir++) {
-        if (new_replica == (replicas[ir])->replica_id) {
+      for (auto &replica : replicas) {
+        if (new_replica == replica->replica_id) {
           // this replica was already added
           if (cvm::debug())
             cvm::log("Metadynamics bias \""+this->name+"\""+
                      ((comm != single_replica) ? ", replica \""+replica_id+"\"" : "")+
                      ": skipping a replica already loaded, \""+
-                     (replicas[ir])->replica_id+"\".\n");
+                     replica->replica_id+"\".\n");
           already_loaded = true;
           break;
         }
@@ -1097,13 +1097,13 @@ int colvarbias_meta::update_replicas_registry()
   }
 
   // now (re)read the list file of each replica
-  for (size_t ir = 0; ir < replicas.size(); ir++) {
+  for (auto &replica : replicas) {
     if (cvm::debug())
       cvm::log("Metadynamics bias \""+this->name+"\""+
                ": reading the list file for replica \""+
-               (replicas[ir])->replica_id+"\".\n");
+               replica->replica_id+"\".\n");
 
-    std::ifstream list_is((replicas[ir])->replica_list_file.c_str());
+    std::ifstream list_is(replica->replica_list_file.c_str());
     std::string key;
     std::string new_state_file, new_hills_file;
     if (!(list_is >> key) ||
@@ -1114,18 +1114,18 @@ int colvarbias_meta::update_replicas_registry()
         !(list_is >> new_hills_file)) {
       cvm::log("Metadynamics bias \""+this->name+"\""+
                ": failed to read the file \""+
-               (replicas[ir])->replica_list_file+"\": will try again after "+
+               replica->replica_list_file+"\": will try again after "+
                cvm::to_str(replica_update_freq)+" steps.\n");
-      (replicas[ir])->update_status++;
+      replica->update_status++;
     } else {
-      if (new_state_file != (replicas[ir])->replica_state_file) {
+      if (new_state_file != replica->replica_state_file) {
         cvm::log("Metadynamics bias \""+this->name+"\""+
-                 ": replica \""+(replicas[ir])->replica_id+
+                 ": replica \""+replica->replica_id+
                  "\" has supplied a new state file, \""+new_state_file+
                  "\".\n");
-        (replicas[ir])->replica_state_file_in_sync = false;
-        (replicas[ir])->replica_state_file = new_state_file;
-        (replicas[ir])->replica_hills_file = new_hills_file;
+        replica->replica_state_file_in_sync = false;
+        replica->replica_state_file = new_state_file;
+        replica->replica_hills_file = new_hills_file;
       }
     }
   }
@@ -1765,8 +1765,8 @@ int colvarbias_meta::setup_output()
     write_replica_state_file();
 
     // schedule to read the state files of the other replicas
-    for (size_t ir = 0; ir < replicas.size(); ir++) {
-      (replicas[ir])->replica_state_file_in_sync = false;
+    for (auto &replica : replicas) {
+      replica->replica_state_file_in_sync = false;
     }
 
     // if we're running without grids, use a growing list of "hills" files
@@ -1880,8 +1880,8 @@ int colvarbias_meta::write_state_to_replicas()
     error_code |= write_replica_state_file();
     error_code |= reopen_replica_buffer_file();
     // schedule to reread the state files of the other replicas
-    for (size_t ir = 0; ir < replicas.size(); ir++) {
-      (replicas[ir])->replica_state_file_in_sync = false;
+    for (auto &replica : replicas) {
+      replica->replica_state_file_in_sync = false;
     }
   }
   return error_code;
@@ -1953,8 +1953,8 @@ void colvarbias_meta::write_pmf()
     // output the combined PMF from all replicas
     pmf->reset();
     // current replica already included in the pools of replicas
-    for (size_t ir = 0; ir < replicas.size(); ir++) {
-      pmf->add_grid(*(replicas[ir]->hills_energy));
+    for (auto &replica : replicas) {
+      pmf->add_grid(*(replica->hills_energy));
     }
 
     if (ebmeta) {

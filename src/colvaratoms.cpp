@@ -135,8 +135,8 @@ int cvm::atom_group::add_atom(cvm::atom const &a)
     return COLVARS_ERROR;
   }
 
-  for (size_t i = 0; i < atoms_ids.size(); i++) {
-    if (atoms_ids[i] == a.id) {
+  for (int atoms_id : atoms_ids) {
+    if (atoms_id == a.id) {
       if (cvm::debug())
         cvm::log("Discarding doubly counted atom with number "+
                  cvm::to_str(a.id+1)+".\n");
@@ -160,8 +160,8 @@ int cvm::atom_group::add_atom_id(int aid)
     return COLVARS_ERROR;
   }
 
-  for (size_t i = 0; i < atoms_ids.size(); i++) {
-    if (atoms_ids[i] == aid) {
+  for (int atoms_id : atoms_ids) {
+    if (atoms_id == aid) {
       if (cvm::debug())
         cvm::log("Discarding doubly counted atom with number "+
                  cvm::to_str(aid+1)+".\n");
@@ -312,13 +312,13 @@ int cvm::atom_group::setup()
 {
   if (atoms_ids.size() == 0) {
     atoms_ids.reserve(atoms.size());
-    for (cvm::atom_iter ai = atoms.begin(); ai != atoms.end(); ai++) {
-      atoms_ids.push_back(ai->id);
+    for (auto &atom : atoms) {
+      atoms_ids.push_back(atom.id);
     }
   }
-  for (cvm::atom_iter ai = atoms.begin(); ai != atoms.end(); ai++) {
-    ai->update_mass();
-    ai->update_charge();
+  for (auto &atom : atoms) {
+    atom.update_mass();
+    atom.update_charge();
   }
   update_total_mass();
   update_total_charge();
@@ -344,8 +344,8 @@ void cvm::atom_group::update_total_mass()
     total_mass = (cvm::main()->proxy)->get_atom_group_mass(index);
   } else {
     total_mass = 0.0;
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
-      total_mass += ai->mass;
+    for (auto &ai : *this) {
+      total_mass += ai.mass;
     }
   }
   if (total_mass < 1e-15) {
@@ -365,8 +365,8 @@ void cvm::atom_group::update_total_charge()
     total_charge = (cvm::main()->proxy)->get_atom_group_charge(index);
   } else {
     total_charge = 0.0;
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
-      total_charge += ai->charge;
+    for (auto &ai : *this) {
+      total_charge += ai.charge;
     }
   }
 }
@@ -612,16 +612,16 @@ int cvm::atom_group::add_atoms_of_group(atom_group const *ag)
     atoms_ids.reserve(atoms_ids.size()+source_ids.size());
 
     if (is_enabled(f_ag_scalable)) {
-      for (size_t i = 0; i < source_ids.size(); i++) {
-        add_atom_id(source_ids[i]);
+      for (int source_id : source_ids) {
+        add_atom_id(source_id);
       }
     } else {
       atoms.reserve(atoms.size()+source_ids.size());
-      for (size_t i = 0; i < source_ids.size(); i++) {
+      for (int source_id : source_ids) {
         // We could use the atom copy constructor, but only if the source
         // group is not scalable - whereas this works in both cases
         // atom constructor expects 1-based atom number
-        add_atom(cvm::atom(source_ids[i] + 1));
+        add_atom(cvm::atom(source_id + 1));
       }
     }
 
@@ -651,14 +651,14 @@ int cvm::atom_group::add_atom_numbers(std::string const &numbers_conf)
     atoms_ids.reserve(atoms_ids.size()+atom_indexes.size());
 
     if (is_enabled(f_ag_scalable)) {
-      for (size_t i = 0; i < atom_indexes.size(); i++) {
-        add_atom_id((cvm::proxy)->check_atom_id(atom_indexes[i]));
+      for (int atom_indexe : atom_indexes) {
+        add_atom_id((cvm::proxy)->check_atom_id(atom_indexe));
       }
     } else {
       // if we are handling the group on rank 0, better allocate the vector in one shot
       atoms.reserve(atoms.size()+atom_indexes.size());
-      for (size_t i = 0; i < atom_indexes.size(); i++) {
-        add_atom(cvm::atom(atom_indexes[i]));
+      for (int atom_indexe : atom_indexes) {
+        add_atom(cvm::atom(atom_indexe));
       }
     }
 
@@ -702,14 +702,14 @@ int cvm::atom_group::add_index_group(std::string const &index_group_name, bool s
   atoms_ids.reserve(atoms_ids.size()+index_group.size());
 
   if (is_enabled(f_ag_scalable)) {
-    for (size_t i = 0; i < index_group.size(); i++) {
+    for (int i : index_group) {
       error_code |=
-        add_atom_id((cvm::proxy)->check_atom_id(index_group[i]));
+        add_atom_id((cvm::proxy)->check_atom_id(i));
     }
   } else {
     atoms.reserve(atoms.size()+index_group.size());
-    for (size_t i = 0; i < index_group.size(); i++) {
-      error_code |= add_atom(cvm::atom(index_group[i]));
+    for (int i : index_group) {
+      error_code |= add_atom(cvm::atom(i));
     }
   }
 
@@ -797,8 +797,8 @@ std::string const cvm::atom_group::print_atom_ids() const
 {
   size_t line_count = 0;
   std::ostringstream os("");
-  for (size_t i = 0; i < atoms_ids.size(); i++) {
-    os << " " << std::setw(9) << atoms_ids[i];
+  for (int atoms_id : atoms_ids) {
+    os << " " << std::setw(9) << atoms_id;
     if (++line_count == 7) {
       os << "\n";
       line_count = 0;
@@ -944,8 +944,8 @@ int cvm::atom_group::create_sorted_ids()
 
   // Sort the internal IDs
   std::list<int> sorted_atoms_ids_list;
-  for (size_t i = 0; i < atoms_ids.size(); i++) {
-    sorted_atoms_ids_list.push_back(atoms_ids[i]);
+  for (int atoms_id : atoms_ids) {
+    sorted_atoms_ids_list.push_back(atoms_id);
   }
   sorted_atoms_ids_list.sort();
   sorted_atoms_ids_list.unique();
@@ -973,10 +973,10 @@ int cvm::atom_group::create_sorted_ids()
 
 
 int cvm::atom_group::overlap(const atom_group &g1, const atom_group &g2){
-  for (cvm::atom_const_iter ai1 = g1.begin(); ai1 != g1.end(); ai1++) {
-    for (cvm::atom_const_iter ai2 = g2.begin(); ai2 != g2.end(); ai2++) {
-      if (ai1->id == ai2->id) {
-        return (ai1->id + 1); // 1-based index to allow boolean usage
+  for (const auto &ai1 : g1) {
+    for (const auto &ai2 : g2) {
+      if (ai1.id == ai2.id) {
+        return (ai1.id + 1); // 1-based index to allow boolean usage
       }
     }
   }
@@ -1002,8 +1002,8 @@ void cvm::atom_group::read_positions()
 {
   if (b_dummy) return;
 
-  for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
-    ai->read_position();
+  for (auto &ai : *this) {
+    ai.read_position();
   }
 
   if (fitting_group)
@@ -1109,8 +1109,8 @@ void cvm::atom_group::apply_translation(cvm::rvector const &t)
     return;
   }
 
-  for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
-    ai->pos += t;
+  for (auto &ai : *this) {
+    ai.pos += t;
   }
 }
 
@@ -1122,15 +1122,15 @@ void cvm::atom_group::read_velocities()
   if (is_enabled(f_ag_rotate)) {
 
     const auto rot_mat = rot.matrix();
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
-      ai->read_velocity();
-      ai->vel = rot_mat * ai->vel;
+    for (auto & ai : *this) {
+      ai.read_velocity();
+      ai.vel = rot_mat * ai.vel;
     }
 
   } else {
 
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
-      ai->read_velocity();
+    for (auto &ai : *this) {
+      ai.read_velocity();
     }
   }
 }
@@ -1144,15 +1144,15 @@ void cvm::atom_group::read_total_forces()
   if (is_enabled(f_ag_rotate)) {
 
     const auto rot_mat = rot.matrix();
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
-      ai->read_total_force();
-      ai->total_force = rot_mat * ai->total_force;
+    for (auto & ai : *this) {
+      ai.read_total_force();
+      ai.total_force = rot_mat * ai.total_force;
     }
 
   } else {
 
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
-      ai->read_total_force();
+    for (auto &ai : *this) {
+      ai.read_total_force();
     }
   }
 }
@@ -1164,8 +1164,8 @@ int cvm::atom_group::calc_center_of_geometry()
     cog = dummy_atom_pos;
   } else {
     cog.reset();
-    for (cvm::atom_const_iter ai = this->begin(); ai != this->end(); ai++) {
-      cog += ai->pos;
+    for (const auto &ai : *this) {
+      cog += ai.pos;
     }
     cog /= cvm::real(this->size());
   }
@@ -1184,8 +1184,8 @@ int cvm::atom_group::calc_center_of_mass()
     com = (cvm::proxy)->get_atom_group_com(index);
   } else {
     com.reset();
-    for (cvm::atom_const_iter ai = this->begin(); ai != this->end(); ai++) {
-      com += ai->mass * ai->pos;
+    for (const auto &ai : *this) {
+      com += ai.mass * ai.pos;
     }
     com /= total_mass;
   }
@@ -1200,8 +1200,8 @@ int cvm::atom_group::calc_dipole(cvm::atom_pos const &dipole_center)
                       "of a dummy group.\n", COLVARS_INPUT_ERROR);
   }
   dip.reset();
-  for (cvm::atom_const_iter ai = this->begin(); ai != this->end(); ai++) {
-    dip += ai->charge * (ai->pos - dipole_center);
+  for (const auto &ai : *this) {
+    dip += ai.charge * (ai.pos - dipole_center);
   }
   return COLVARS_OK;
 }
@@ -1214,8 +1214,8 @@ void cvm::atom_group::set_weighted_gradient(cvm::rvector const &grad)
   scalar_com_gradient = grad;
 
   if (!is_enabled(f_ag_scalable)) {
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
-      ai->grad = (ai->mass/total_mass) * grad;
+    for (auto &ai : *this) {
+      ai.grad = (ai.mass/total_mass) * grad;
     }
   }
 }
@@ -1413,8 +1413,8 @@ cvm::rvector cvm::atom_group::total_force() const
   }
 
   cvm::rvector f(0.0);
-  for (cvm::atom_const_iter ai = this->begin(); ai != this->end(); ai++) {
-    f += ai->total_force;
+  for (const auto &ai : *this) {
+    f += ai.total_force;
   }
   return f;
 }
@@ -1443,14 +1443,14 @@ void cvm::atom_group::apply_colvar_force(cvm::real const &force)
 
     // rotate forces back to the original frame
     const auto rot_inv = rot.inverse().matrix();
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
-      ai->apply_force(rot_inv * (force * ai->grad));
+    for (auto & ai : *this) {
+      ai.apply_force(rot_inv * (force * ai.grad));
     }
 
   } else {
 
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
-      ai->apply_force(force * ai->grad);
+    for (auto &ai : *this) {
+      ai.apply_force(force * ai.grad);
     }
   }
 

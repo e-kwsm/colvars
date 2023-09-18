@@ -385,10 +385,10 @@ std::ostream & colvarbias_alb::write_traj(std::ostream &os)
        << bias_energy;
 
   if (b_output_coupling)
-    for (size_t i = 0; i < current_coupling.size(); i++) {
+    for (double i : current_coupling) {
       os << " "
          << std::setprecision(cvm::en_prec) << std::setw(cvm::en_width)
-         << current_coupling[i];
+         << i;
     }
 
 
