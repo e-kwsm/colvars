@@ -214,38 +214,38 @@ public:
   // strings is supported, and obj is assumed to be a char * pointer.
 
   /// Copy x into obj if not NULL, or into the script object's result otherwise
-  int set_result_int(int const &x, unsigned char *obj = NULL);
+  int set_result_int(int const &x, unsigned char *obj = nullptr);
 
   /// Copy x into obj if not NULL, or into the script object's result otherwise
-  int set_result_int_vec(std::vector<int> const &x, unsigned char *obj = NULL);
+  int set_result_int_vec(std::vector<int> const &x, unsigned char *obj = nullptr);
 
   /// Copy x into obj if not NULL, or into the script object's result otherwise
-  int set_result_long_int(long int const &x, unsigned char *obj = NULL);
+  int set_result_long_int(long int const &x, unsigned char *obj = nullptr);
 
   /// Copy x into obj if not NULL, or into the script object's result otherwise
   int set_result_long_int_vec(std::vector<long int> const &x,
-                              unsigned char *obj = NULL);
+                              unsigned char *obj = nullptr);
 
   /// Copy x into obj if not NULL, or into the script object's result otherwise
-  int set_result_real(cvm::real const &x, unsigned char *obj = NULL);
+  int set_result_real(cvm::real const &x, unsigned char *obj = nullptr);
 
   /// Copy x into obj if not NULL, or into the script object's result otherwise
   int set_result_real_vec(std::vector<cvm::real> const &x,
-                          unsigned char *obj = NULL);
+                          unsigned char *obj = nullptr);
 
   /// Copy x into obj if not NULL, or into the script object's result otherwise
-  int set_result_rvector(cvm::rvector const &x, unsigned char *obj = NULL);
+  int set_result_rvector(cvm::rvector const &x, unsigned char *obj = nullptr);
 
   /// Copy x into obj if not NULL, or into the script object's result otherwise
   int set_result_rvector_vec(std::vector<cvm::rvector> const &x,
-                             unsigned char *obj = NULL);
+                             unsigned char *obj = nullptr);
 
   /// Copy x into obj if not NULL, or into the script object's result otherwise
-  int set_result_colvarvalue(colvarvalue const &x, unsigned char *obj = NULL);
+  int set_result_colvarvalue(colvarvalue const &x, unsigned char *obj = nullptr);
 
   /// Copy x into obj if not NULL, or into the script object's result otherwise
   int set_result_colvarvalue_vec(std::vector<colvarvalue> const &x,
-                                 unsigned char *obj = NULL);
+                                 unsigned char *obj = nullptr);
 
 private:
 
@@ -304,7 +304,7 @@ private: // TODO
     if (cmd_str_map.count(cmd_key) > 0) {
       return cmd_fns[cmd_str_map[cmd_key]];
     }
-    return NULL;
+    return nullptr;
   }
 
   /// Set obj equal to x, using its string representation
@@ -350,7 +350,7 @@ unsigned char *colvarscript::get_cmd_arg(int iarg,
                                          unsigned char *const objv[])
 {
   int const shift = cmd_arg_shift<T>();
-  return (shift+iarg < objc) ? objv[shift+iarg] : NULL;
+  return (shift+iarg < objc) ? objv[shift+iarg] : nullptr;
 }
 
 

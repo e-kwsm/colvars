@@ -31,8 +31,8 @@ colvarbias_meta::colvarbias_meta(char const *key)
   use_grids = true;
   grids_freq = 0;
   rebin_grids = false;
-  hills_energy = NULL;
-  hills_energy_gradients = NULL;
+  hills_energy = nullptr;
+  hills_energy_gradients = nullptr;
 
   dump_fes = true;
   keep_hills = false;
@@ -143,7 +143,7 @@ int colvarbias_meta::init(std::string const &conf)
     get_keyval(conf, "keepHills", keep_hills, keep_hills);
     get_keyval(conf, "keepFreeEnergyFiles", dump_fes_save, dump_fes_save);
 
-    if (hills_energy == NULL) {
+    if (hills_energy == nullptr) {
       hills_energy           = new colvar_grid_scalar(colvars);
       hills_energy_gradients = new colvar_grid_gradient(colvars);
     }
@@ -254,7 +254,7 @@ int colvarbias_meta::init_ebmeta_params(std::string const &conf)
 {
   int error_code = COLVARS_OK;
   // for ebmeta
-  target_dist = NULL;
+  target_dist = nullptr;
   get_keyval(conf, "ebMeta", ebmeta, false);
   if(ebmeta){
     cvm::main()->cite_feature("Ensemble-biased metadynamics (ebMetaD)");
@@ -325,7 +325,7 @@ colvarbias_meta::~colvarbias_meta()
 
   if (target_dist) {
     delete target_dist;
-    target_dist = NULL;
+    target_dist = nullptr;
   }
 }
 
@@ -334,12 +334,12 @@ int colvarbias_meta::clear_state_data()
 {
   if (hills_energy) {
     delete hills_energy;
-    hills_energy = NULL;
+    hills_energy = nullptr;
   }
 
   if (hills_energy_gradients) {
     delete hills_energy_gradients;
-    hills_energy_gradients = NULL;
+    hills_energy_gradients = nullptr;
   }
 
   hills.clear();
@@ -445,8 +445,8 @@ int colvarbias_meta::update()
     error_code |= replica_share();
   }
 
-  error_code |= calc_energy(NULL);
-  error_code |= calc_forces(NULL);
+  error_code |= calc_energy(nullptr);
+  error_code |= calc_forces(nullptr);
 
   return error_code;
 }
@@ -588,7 +588,7 @@ int colvarbias_meta::update_bias()
         std::vector<int> curr_bin = hills_energy->get_colvars_index();
         hills_energy_sum_here = hills_energy->value(curr_bin);
       } else {
-        calc_hills(new_hills_begin, hills.end(), hills_energy_sum_here, NULL);
+        calc_hills(new_hills_begin, hills.end(), hills_energy_sum_here, nullptr);
       }
       hills_scale *= cvm::exp(-1.0*hills_energy_sum_here/(bias_temperature*proxy->boltzmann()));
     }
@@ -900,14 +900,14 @@ void colvarbias_meta::project_hills(colvarbias_meta::hill_iter  h_first,
   std::vector<cvm::real> colvar_forces_scalar(num_variables());
 
   std::vector<int> he_ix = he->new_index();
-  std::vector<int> hg_ix = (hg != NULL) ? hg->new_index() : std::vector<int> (0);
+  std::vector<int> hg_ix = (hg != nullptr) ? hg->new_index() : std::vector<int> (0);
   cvm::real hills_energy_here = 0.0;
   std::vector<colvarvalue> hills_forces_here(num_variables(), 0.0);
 
   size_t count = 0;
   size_t const print_frequency = ((hills.size() >= 1000000) ? 1 : (1000000/(hills.size()+1)));
 
-  if (hg != NULL) {
+  if (hg != nullptr) {
 
     // loop over the points of the grid
     for ( ;
@@ -1339,8 +1339,8 @@ template <typename IST> IST &colvarbias_meta::read_state_data_template_(IST &is)
 {
   if (use_grids) {
 
-    colvar_grid_scalar   *hills_energy_backup = NULL;
-    colvar_grid_gradient *hills_energy_gradients_backup = NULL;
+    colvar_grid_scalar   *hills_energy_backup = nullptr;
+    colvar_grid_gradient *hills_energy_gradients_backup = nullptr;
 
     if (has_data) {
       if (cvm::debug())

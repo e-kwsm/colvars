@@ -12,40 +12,40 @@
 #include "colvars_memstream.h"
 
 colvarbias_reweightaMD::colvarbias_reweightaMD(char const *key)
-  : colvarbias_histogram(key), grid_count(NULL), grid_dV(NULL),
-    grid_dV_square(NULL), pmf_grid_exp_avg(NULL), pmf_grid_cumulant(NULL),
-    grad_grid_exp_avg(NULL), grad_grid_cumulant(NULL)
+  : colvarbias_histogram(key), grid_count(nullptr), grid_dV(nullptr),
+    grid_dV_square(nullptr), pmf_grid_exp_avg(nullptr), pmf_grid_cumulant(nullptr),
+    grad_grid_exp_avg(nullptr), grad_grid_cumulant(nullptr)
 {
 }
 
 colvarbias_reweightaMD::~colvarbias_reweightaMD() {
   if (grid_dV) {
     delete grid_dV;
-    grid_dV = NULL;
+    grid_dV = nullptr;
   }
   if (grid_dV_square) {
     delete grid_dV_square;
-    grid_dV_square = NULL;
+    grid_dV_square = nullptr;
   }
   if (grid_count) {
     delete grid_count;
-    grid_count = NULL;
+    grid_count = nullptr;
   }
   if (pmf_grid_exp_avg) {
     delete pmf_grid_exp_avg;
-    pmf_grid_exp_avg = NULL;
+    pmf_grid_exp_avg = nullptr;
   }
   if (pmf_grid_cumulant) {
     delete pmf_grid_cumulant;
-    pmf_grid_cumulant = NULL;
+    pmf_grid_cumulant = nullptr;
   }
   if (grad_grid_exp_avg) {
     delete grad_grid_exp_avg;
-    grad_grid_exp_avg = NULL;
+    grad_grid_exp_avg = nullptr;
   }
   if (grad_grid_cumulant) {
     delete grad_grid_cumulant;
-    grad_grid_cumulant = NULL;
+    grad_grid_cumulant = nullptr;
   }
 }
 

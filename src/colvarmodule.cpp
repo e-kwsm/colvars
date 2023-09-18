@@ -89,7 +89,7 @@ colvarmodule::colvarmodule(colvarproxy *proxy_in)
   usage_ = new usage();
   usage_->cite_feature("Colvars module");
 
-  if (proxy != NULL) {
+  if (proxy != nullptr) {
     // TODO relax this error to handle multiple molecules in VMD
     // once the module is not static anymore
     cvm::error("Error: trying to allocate the collective "
@@ -184,7 +184,7 @@ colvarmodule::colvarmodule(colvarproxy *proxy_in)
 
 colvarmodule * colvarmodule::main()
 {
-  return proxy ? proxy->colvars : NULL;
+  return proxy ? proxy->colvars : nullptr;
 }
 
 
@@ -724,7 +724,7 @@ colvarbias * colvarmodule::bias_by_name(std::string const &name)
       return (*bi);
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 
@@ -738,7 +738,7 @@ colvar *colvarmodule::colvar_by_name(std::string const &name)
       return (*cvi);
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 
@@ -752,7 +752,7 @@ cvm::atom_group *colvarmodule::atom_group_by_name(std::string const &name)
       return (*agi);
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 
@@ -782,7 +782,7 @@ int colvarmodule::change_configuration(std::string const &bias_name,
   cvm::increase_depth();
   colvarbias *b;
   b = bias_by_name(bias_name);
-  if (b == NULL) {
+  if (b == nullptr) {
     cvm::error("Error: bias not found: " + bias_name);
     return COLVARS_ERROR;
   }
@@ -798,7 +798,7 @@ std::string colvarmodule::read_colvar(std::string const &name)
   colvar *c;
   std::stringstream ss;
   c = colvar_by_name(name);
-  if (c == NULL) {
+  if (c == nullptr) {
     cvm::error("Error: colvar not found: " + name);
     return std::string();
   }
@@ -815,7 +815,7 @@ cvm::real colvarmodule::energy_difference(std::string const &bias_name,
   colvarbias *b;
   cvm::real energy_diff = 0.;
   b = bias_by_name(bias_name);
-  if (b == NULL) {
+  if (b == nullptr) {
     cvm::error("Error: bias not found: " + bias_name);
     return 0.;
   }
@@ -1317,16 +1317,16 @@ colvarmodule::~colvarmodule()
 
     delete
       reinterpret_cast<std::map<std::string, int> *>(num_biases_types_used_);
-    num_biases_types_used_ = NULL;
+    num_biases_types_used_ = nullptr;
 
     delete parse;
-    parse = NULL;
+    parse = nullptr;
 
     delete usage_;
-    usage_ = NULL;
+    usage_ = nullptr;
 
     // The proxy object will be deallocated last (if at all)
-    proxy = NULL;
+    proxy = nullptr;
   }
 }
 
@@ -1696,7 +1696,7 @@ std::istream & colvarmodule::read_objects_state(std::istream &is)
     if (is.tellg() == pos) {
       // This block has not been read by any object: discard it and move on
       // to the next one
-      is >> colvarparse::read_block(word, NULL);
+      is >> colvarparse::read_block(word, nullptr);
     }
 
     if (!is) break;
@@ -1973,7 +1973,7 @@ void colvarmodule::log(std::string const &message, int min_log_level)
   std::string const trailing_newline = (message.size() > 0) ?
     (message[message.size()-1] == '\n' ? "" : "\n") : "";
   // allow logging when the module is not fully initialized
-  size_t const d = (cvm::main() != NULL) ? depth() : 0;
+  size_t const d = (cvm::main() != nullptr) ? depth() : 0;
   if (d > 0) {
     proxy->log((std::string(2*d, ' ')) + message + trailing_newline);
   } else {
@@ -2086,7 +2086,7 @@ int cvm::read_index_file(char const *filename)
       }
       if (index_of_group < 0) {
         index_group_names.push_back(group_name);
-        index_groups.push_back(NULL);
+        index_groups.push_back(nullptr);
         index_of_group = index_groups.size()-1;
       }
     } else {
@@ -2105,7 +2105,7 @@ int cvm::read_index_file(char const *filename)
       pos = is.tellg();
     }
 
-    if (old_index_group != NULL) {
+    if (old_index_group != nullptr) {
       bool equal = false;
       if (new_index_group->size() == old_index_group->size()) {
         if (std::equal(new_index_group->begin(), new_index_group->end(),
@@ -2116,13 +2116,13 @@ int cvm::read_index_file(char const *filename)
       if (! equal) {
         new_index_group->clear();
         delete new_index_group;
-        new_index_group = NULL;
+        new_index_group = nullptr;
         return cvm::error("Error: the index group \""+group_name+
                           "\" was redefined.\n", COLVARS_INPUT_ERROR);
       } else {
         old_index_group->clear();
         delete old_index_group;
-        old_index_group = NULL;
+        old_index_group = nullptr;
       }
     }
 
@@ -2156,7 +2156,7 @@ int colvarmodule::reset_index_groups()
   size_t i = 0;
   for ( ; i < index_groups.size(); i++) {
     delete index_groups[i];
-    index_groups[i] = NULL;
+    index_groups[i] = nullptr;
   }
   index_group_names.clear();
   index_groups.clear();
@@ -2605,7 +2605,7 @@ std::string colvarmodule::usage::report(int flag)
 
 
 // shared pointer to the proxy object
-colvarproxy *colvarmodule::proxy = NULL;
+colvarproxy *colvarmodule::proxy = nullptr;
 
 // static runtime data
 cvm::real colvarmodule::debug_gradients_step_size = 1.0e-07;

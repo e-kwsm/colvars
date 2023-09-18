@@ -117,7 +117,7 @@ cvm::atom_group::~atom_group()
 
   if (fitting_group) {
     delete fitting_group;
-    fitting_group = NULL;
+    fitting_group = nullptr;
   }
 
   if (rot_deriv != nullptr) {
@@ -232,7 +232,7 @@ int cvm::atom_group::init()
 
   b_dummy = false;
   b_user_defined_fit = false;
-  fitting_group = NULL;
+  fitting_group = nullptr;
   rot_deriv = nullptr;
 
   noforce = false;
@@ -402,7 +402,7 @@ int cvm::atom_group::parse(std::string const &group_conf)
 
   // Optional group name will let other groups reuse atom definition
   if (get_keyval(group_conf, "name", name)) {
-    if ((cvm::atom_group_by_name(this->name) != NULL) &&
+    if ((cvm::atom_group_by_name(this->name) != nullptr) &&
         (cvm::atom_group_by_name(this->name) != this)) {
       cvm::error("Error: this atom group cannot have the same name, \""+this->name+
                         "\", as another atom group.\n",
@@ -444,7 +444,7 @@ int cvm::atom_group::parse(std::string const &group_conf)
     std::string atoms_of = "";
     if (get_keyval(group_conf, "atomsOfGroup", atoms_of)) {
       atom_group * ag = atom_group_by_name(atoms_of);
-      if (ag == NULL) {
+      if (ag == nullptr) {
         cvm::error("Error: cannot find atom group with name " + atoms_of + ".\n");
         return COLVARS_ERROR;
       }

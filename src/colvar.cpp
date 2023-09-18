@@ -71,7 +71,7 @@ int colvar::init(std::string const &conf)
   get_keyval(conf, "name", this->name,
              (std::string("colvar")+cvm::to_str(cv->variables()->size())));
 
-  if ((cvm::colvar_by_name(this->name) != NULL) &&
+  if ((cvm::colvar_by_name(this->name) != nullptr) &&
       (cvm::colvar_by_name(this->name) != this)) {
     cvm::error("Error: this colvar cannot have the same name, \""+this->name+
                       "\", as another colvar.\n",
@@ -1102,7 +1102,7 @@ int colvar::parse_analysis(std::string const &conf)
       acf_type = acf_vel;
       enable(f_cv_fdiff_velocity);
       colvar *cv2 = cvm::colvar_by_name(acf_colvar_name);
-      if (cv2 == NULL) {
+      if (cv2 == nullptr) {
         return cvm::error("Error: collective variable \""+acf_colvar_name+
                           "\" is not defined at this time.\n", COLVARS_INPUT_ERROR);
       }
@@ -1371,14 +1371,14 @@ colvar::~colvar()
   for (std::vector<Lepton::CompiledExpression *>::iterator cei = value_evaluators.begin();
        cei != value_evaluators.end();
        ++cei) {
-    if (*cei != NULL) delete (*cei);
+    if (*cei != nullptr) delete (*cei);
   }
   value_evaluators.clear();
 
   for (std::vector<Lepton::CompiledExpression *>::iterator gei = gradient_evaluators.begin();
        gei != gradient_evaluators.end();
        ++gei) {
-    if (*gei != NULL) delete (*gei);
+    if (*gei != nullptr) delete (*gei);
   }
   gradient_evaluators.clear();
 #endif
@@ -2220,7 +2220,7 @@ void const *colvar::get_cvc_param_ptr(std::string const &param_name)
   }
   cvm::error("Error: calling colvar::get_cvc_param() for a variable "
              "with more than one component.\n", COLVARS_NOT_IMPLEMENTED);
-  return NULL;
+  return nullptr;
 }
 
 
@@ -2231,7 +2231,7 @@ colvarvalue const *colvar::get_cvc_param_grad(std::string const &param_name)
   }
   cvm::error("Error: calling colvar::get_cvc_param_grad() for a variable "
              "with more than one component.\n", COLVARS_NOT_IMPLEMENTED);
-  return NULL;
+  return nullptr;
 }
 
 
@@ -2780,7 +2780,7 @@ int colvar::calc_acf()
   // the pointer to each vector is changed at every step
 
   colvar const *cfcv = cvm::colvar_by_name(acf_colvar_name);
-  if (cfcv == NULL) {
+  if (cfcv == nullptr) {
     return cvm::error("Error: collective variable \""+acf_colvar_name+
                       "\" is not defined at this time.\n", COLVARS_INPUT_ERROR);
   }

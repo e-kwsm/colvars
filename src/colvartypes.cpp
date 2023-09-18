@@ -163,7 +163,7 @@ colvarmodule::rotation::rotation()
 #ifdef COLVARS_LAMMPS
   jacobi = new_Jacobi_solver(4);
 #else
-  jacobi = NULL;
+  jacobi = nullptr;
 #endif
 }
 
@@ -175,7 +175,7 @@ colvarmodule::rotation::rotation(cvm::quaternion const &qi)
 #ifdef COLVARS_LAMMPS
   jacobi = new_Jacobi_solver(4);
 #else
-  jacobi = NULL;
+  jacobi = nullptr;
 #endif
 }
 
@@ -190,7 +190,7 @@ colvarmodule::rotation::rotation(cvm::real angle, cvm::rvector const &axis)
 #ifdef COLVARS_LAMMPS
   jacobi = new_Jacobi_solver(4);
 #else
-  jacobi = NULL;
+  jacobi = nullptr;
 #endif
 }
 

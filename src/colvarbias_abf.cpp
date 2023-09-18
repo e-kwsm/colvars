@@ -447,7 +447,7 @@ int colvarbias_abf::update()
   }
 
   /// Compute the bias energy
-  int error_code = calc_energy(NULL);
+  int error_code = calc_energy(nullptr);
 
   return error_code;
 }
@@ -1095,7 +1095,7 @@ int colvarbias_abf::calc_energy(std::vector<colvarvalue> const *values)
 {
   bias_energy = 0.0; // default value, overridden if a value can be calculated
 
-  if (num_variables() > 1 || values != NULL) {
+  if (num_variables() > 1 || values != nullptr) {
     // Use simple estimate: neglect effect of fullSamples,
     // return value at center of bin
     if (pmf) {

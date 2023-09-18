@@ -103,7 +103,7 @@ CVSCRIPT(cv_addenergy,
          "E : float - Amount of energy to add",
          char const *Earg =
            script->obj_to_str(script->get_module_cmd_arg(0, objc, objv));
-         cvm::main()->total_bias_energy += strtod(Earg, NULL);
+         cvm::main()->total_bias_energy += strtod(Earg, nullptr);
          return cvm::get_error(); // TODO Make this multi-language
          )
 
@@ -188,7 +188,7 @@ CVSCRIPT(cv_frame,
          "frame : integer - Frame number",
          char const *arg =
            script->obj_to_str(script->get_module_cmd_arg(0, objc, objv));
-         if (arg == NULL) {
+         if (arg == nullptr) {
            long int f = -1;
            if (script->proxy()->get_frame(f) == COLVARS_OK) {
              script->set_result_long_int(f);
@@ -198,7 +198,7 @@ CVSCRIPT(cv_frame,
              return COLVARSCRIPT_ERROR;
            }
          } else {
-           int const f = strtol(const_cast<char *>(arg), NULL, 10);
+           int const f = strtol(const_cast<char *>(arg), nullptr, 10);
            int error_code = script->proxy()->set_frame(f);
            if (error_code == COLVARS_NO_SUCH_FRAME) {
              script->add_error_msg("Invalid frame number: \""+std::string(arg)+
@@ -519,7 +519,7 @@ CVSCRIPT(cv_molid,
          "molid : integer - New molecule ID; -1 means undefined",
          char const *arg =
            script->obj_to_str(script->get_module_cmd_arg(0, objc, objv));
-         if (arg == NULL) {
+         if (arg == nullptr) {
            int molid = -1;
            script->proxy()->get_molid(molid);
            script->set_result_int(molid);
@@ -607,10 +607,10 @@ CVSCRIPT(cv_targettemperature,
          "T : float - New target temperature in K (internal use)",
          char const *Targ =
            script->obj_to_str(script->get_module_cmd_arg(0, objc, objv));
-         if (Targ == NULL) {
+         if (Targ == nullptr) {
            return script->set_result_real(script->proxy()->target_temperature());
          } else {
-           return script->proxy()->set_target_temperature(strtod(Targ, NULL));
+           return script->proxy()->set_target_temperature(strtod(Targ, nullptr));
          }
          )
 
@@ -621,10 +621,10 @@ CVSCRIPT(cv_timestep,
          "dt : float - New integration timestep in MD engine units",
          char const *arg =
            script->obj_to_str(script->get_module_cmd_arg(0, objc, objv));
-         if (arg == NULL) {
+         if (arg == nullptr) {
            return script->set_result_real(script->proxy()->dt());
          } else {
-           return script->proxy()->set_integration_timestep(strtod(arg, NULL));
+           return script->proxy()->set_integration_timestep(strtod(arg, nullptr));
          }
          )
 
