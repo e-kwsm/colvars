@@ -709,11 +709,11 @@ int colvarbias_abf::read_gradients_samples()
 
   std::string samples_in_name, gradients_in_name, z_samples_in_name, z_gradients_in_name;
 
-  for ( size_t i = 0; i < input_prefix.size(); i++ ) {
-    samples_in_name = input_prefix[i] + ".count";
-    gradients_in_name = input_prefix[i] + ".grad";
-    z_samples_in_name = input_prefix[i] + ".zcount";
-    z_gradients_in_name = input_prefix[i] + ".zgrad";
+  for (const auto &i : input_prefix) {
+    samples_in_name = i + ".count";
+    gradients_in_name = i + ".grad";
+    z_samples_in_name = i + ".zcount";
+    z_gradients_in_name = i + ".zgrad";
     // For user-provided files, the per-bias naming scheme may not apply
     cvm::log("Reading sample count from " + samples_in_name +
              " and gradient from " + gradients_in_name);

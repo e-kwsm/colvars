@@ -275,8 +275,8 @@ cvm::real colvar_grid_scalar::integral() const
     sum += data[i];
   }
   cvm::real bin_volume = 1.0;
-  for (size_t id = 0; id < widths.size(); id++) {
-    bin_volume *= widths[id];
+  for (double width : widths) {
+    bin_volume *= width;
   }
   return bin_volume * sum;
 }
@@ -291,8 +291,8 @@ cvm::real colvar_grid_scalar::entropy() const
     }
   }
   cvm::real bin_volume = 1.0;
-  for (size_t id = 0; id < widths.size(); id++) {
-    bin_volume *= widths[id];
+  for (double width : widths) {
+    bin_volume *= width;
   }
   return bin_volume * sum;
 }
