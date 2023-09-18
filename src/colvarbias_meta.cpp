@@ -417,7 +417,7 @@ colvarbias_meta::delete_hill(hill_iter &h)
   }
 
   if (use_grids && !hills_off_grid.empty()) {
-    for (hill_iter hoff = hills_off_grid.begin();
+    for (auto hoff = hills_off_grid.begin();
          hoff != hills_off_grid.end(); hoff++) {
       if (*h == *hoff) {
         hills_off_grid.erase(hoff);
@@ -541,9 +541,9 @@ int colvarbias_meta::update_grid_params()
 
         // map everything into new grids
 
-        colvar_grid_scalar *new_hills_energy =
+        auto *new_hills_energy =
           new colvar_grid_scalar(*hills_energy);
-        colvar_grid_gradient *new_hills_energy_gradients =
+        auto *new_hills_energy_gradients =
           new colvar_grid_gradient(*hills_energy_gradients);
 
         // supply new boundaries to the new grids
@@ -803,7 +803,7 @@ void colvarbias_meta::calc_hills(colvarbias_meta::hill_iter      h_first,
 {
   size_t i = 0;
 
-  for (hill_iter h = h_first; h != h_last; h++) {
+  for (auto h = h_first; h != h_last; h++) {
 
     // compute the gaussian exponent
     cvm::real cv_sqdev = 0.0;
@@ -985,7 +985,7 @@ void colvarbias_meta::recount_hills_off_grid(colvarbias_meta::hill_iter  h_first
 {
   hills_off_grid.clear();
 
-  for (hill_iter h = h_first; h != h_last; h++) {
+  for (auto h = h_first; h != h_last; h++) {
     cvm::real const min_dist = hills_energy->bin_distance_from_boundaries(h->centers, true);
     if (min_dist < (3.0 * cvm::floor(hill_width)) + 1.0) {
       hills_off_grid.push_back(*h);
@@ -1393,8 +1393,8 @@ template <typename IST> IST &colvarbias_meta::read_state_data_template_(IST &is)
   // be cleared if hills are read successfully from the stream
   bool const existing_hills = !hills.empty();
   size_t const old_hills_size = hills.size();
-  hill_iter old_hills_end = hills.end();
-  hill_iter old_hills_off_grid_end = hills_off_grid.end();
+  auto old_hills_end = hills.end();
+  auto old_hills_off_grid_end = hills_off_grid.end();
   if (cvm::debug()) {
     cvm::log("Before reading hills from the state file, there are "+
              cvm::to_str(hills.size())+" hills in memory.\n");
@@ -1472,9 +1472,9 @@ void colvarbias_meta::rebin_grids_after_restart()
     // read from the configuration file), and project onto them the
     // grids just read from the restart file
 
-    colvar_grid_scalar   *new_hills_energy =
+    auto *new_hills_energy =
       new colvar_grid_scalar(colvars);
-    colvar_grid_gradient *new_hills_energy_gradients =
+    auto *new_hills_energy_gradients =
       new colvar_grid_gradient(colvars);
 
     if (cvm::debug()) {
@@ -1941,7 +1941,7 @@ void colvarbias_meta::write_pmf()
 {
   colvarproxy *proxy = cvm::main()->proxy;
   // allocate a new grid to store the pmf
-  colvar_grid_scalar *pmf = new colvar_grid_scalar(*hills_energy);
+  auto *pmf = new colvar_grid_scalar(*hills_energy);
   pmf->setup();
 
   if ((comm == single_replica) || (dump_replica_fes)) {

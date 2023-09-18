@@ -440,8 +440,8 @@ int colvar::distance_inv::init(std::string const &conf)
     error_code |= cvm::error("Error: negative or zero exponent provided.\n", COLVARS_INPUT_ERROR);
   }
 
-  for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
-    for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
+  for (auto ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
+    for (auto ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
       if (ai1->id == ai2->id) {
         error_code |= cvm::error("Error: group1 and group2 have some atoms in common: this is not "
                                  "allowed for distanceInv.\n",
@@ -464,8 +464,8 @@ void colvar::distance_inv::calc_value()
 {
   x.real_value = 0.0;
   if (!is_enabled(f_cvc_pbc_minimum_image)) {
-    for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
-      for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
+    for (auto ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
+      for (auto ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
         cvm::rvector const dv = ai2->pos - ai1->pos;
         cvm::real const d2 = dv.norm2();
         cvm::real const dinv = cvm::integer_power(d2, -1*(exponent/2));
@@ -476,8 +476,8 @@ void colvar::distance_inv::calc_value()
       }
     }
   } else {
-    for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
-      for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
+    for (auto ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
+      for (auto ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
         cvm::rvector const dv = cvm::position_distance(ai1->pos, ai2->pos);
         cvm::real const d2 = dv.norm2();
         cvm::real const dinv = cvm::integer_power(d2, -1*(exponent/2));
@@ -495,10 +495,10 @@ void colvar::distance_inv::calc_value()
   cvm::real const dxdsum = (-1.0/(cvm::real(exponent))) *
     cvm::integer_power(x.real_value, exponent+1) /
     cvm::real(group1->size() * group2->size());
-  for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
+  for (auto ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
     ai1->grad *= dxdsum;
   }
-  for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
+  for (auto ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
     ai2->grad *= dxdsum;
   }
 }
@@ -644,7 +644,7 @@ void colvar::dipole_magnitude::calc_gradients()
   cvm::real const aux1 = atoms->total_charge/atoms->total_mass;
   cvm::atom_pos const dipVunit = dipoleV.unit();
 
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+  for (auto ai = atoms->begin(); ai != atoms->end(); ai++) {
     ai->grad = (ai->charge - aux1*ai->mass) * dipVunit;
   }
 }
@@ -681,7 +681,7 @@ int colvar::gyration::init(std::string const &conf)
 void colvar::gyration::calc_value()
 {
   x.real_value = 0.0;
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+  for (auto ai = atoms->begin(); ai != atoms->end(); ai++) {
     x.real_value += (ai->pos).norm2();
   }
   x.real_value = cvm::sqrt(x.real_value / cvm::real(atoms->size()));
@@ -691,7 +691,7 @@ void colvar::gyration::calc_value()
 void colvar::gyration::calc_gradients()
 {
   cvm::real const drdx = 1.0/(cvm::real(atoms->size()) * x.real_value);
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+  for (auto ai = atoms->begin(); ai != atoms->end(); ai++) {
     ai->grad = drdx * ai->pos;
   }
 }
@@ -704,7 +704,7 @@ void colvar::gyration::calc_force_invgrads()
   cvm::real const dxdr = 1.0/x.real_value;
   ft.real_value = 0.0;
 
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+  for (auto ai = atoms->begin(); ai != atoms->end(); ai++) {
     ft.real_value += dxdr * ai->pos * ai->total_force;
   }
 }
@@ -726,7 +726,7 @@ colvar::inertia::inertia()
 void colvar::inertia::calc_value()
 {
   x.real_value = 0.0;
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+  for (auto ai = atoms->begin(); ai != atoms->end(); ai++) {
     x.real_value += (ai->pos).norm2();
   }
 }
@@ -734,7 +734,7 @@ void colvar::inertia::calc_value()
 
 void colvar::inertia::calc_gradients()
 {
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+  for (auto ai = atoms->begin(); ai != atoms->end(); ai++) {
     ai->grad = 2.0 * ai->pos;
   }
 }
@@ -766,7 +766,7 @@ int colvar::inertia_z::init(std::string const &conf)
 void colvar::inertia_z::calc_value()
 {
   x.real_value = 0.0;
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+  for (auto ai = atoms->begin(); ai != atoms->end(); ai++) {
     cvm::real const iprod = ai->pos * axis;
     x.real_value += iprod * iprod;
   }
@@ -775,7 +775,7 @@ void colvar::inertia_z::calc_value()
 
 void colvar::inertia_z::calc_gradients()
 {
-  for (cvm::atom_iter ai = atoms->begin(); ai != atoms->end(); ai++) {
+  for (auto ai = atoms->begin(); ai != atoms->end(); ai++) {
     ai->grad = 2.0 * (ai->pos * axis) * axis;
   }
 }

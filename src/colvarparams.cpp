@@ -93,7 +93,7 @@ void const *colvarparams::get_param_grad_ptr(std::string const &param_name)
 
 cvm::real colvarparams::get_param(std::string const &param_name)
 {
-  cvm::real const *ptr =
+  auto const *ptr =
     reinterpret_cast<cvm::real const *>(get_param_ptr(param_name));
   return ptr != NULL ? *ptr : 0.0;
 }

@@ -254,10 +254,10 @@ int colvarbias::clear()
   free_children_deps();
 
   // Remove references to this bias from colvars
-  for (std::vector<colvar *>::iterator cvi = colvars.begin();
+  for (auto cvi = colvars.begin();
        cvi != colvars.end();
        ++cvi) {
-    for (std::vector<colvarbias *>::iterator bi = (*cvi)->biases.begin();
+    for (auto bi = (*cvi)->biases.begin();
          bi != (*cvi)->biases.end();
          ++bi) {
       if ( *bi == this) {
@@ -269,7 +269,7 @@ int colvarbias::clear()
 
   colvarmodule *cv = cvm::main();
   // ...and from the colvars module
-  for (std::vector<colvarbias *>::iterator bi = cv->biases.begin();
+  for (auto bi = cv->biases.begin();
        bi != cv->biases.end();
        ++bi) {
     if ( *bi == this) {
