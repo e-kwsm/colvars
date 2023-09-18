@@ -34,20 +34,20 @@ colvarscript::colvarscript(colvarproxy *p, colvarmodule *m)
    colvars(m)
 {
   cmdline_main_cmd_ = std::string("cv");
-  cmd_names = NULL;
+  cmd_names = nullptr;
   init_commands();
 #ifdef COLVARS_TCL
   // must be called after constructing derived proxy class to allow for overloading
   proxy()->init_tcl_pointers();
   // TODO put this in backend functions so we don't have to delete
   Tcl_Interp *const interp = proxy()->get_tcl_interp();
-  if (interp == NULL) {
+  if (interp == nullptr) {
     cvm::error("Error: trying to construct colvarscript without a Tcl interpreter.\n");
     return;
   }
   Tcl_DeleteCommand(interp, "cv");
   Tcl_CreateObjCommand(interp, "cv", tcl_run_colvarscript_command,
-                       (ClientData) this, (Tcl_CmdDeleteProc *) NULL);
+                       (ClientData) this, (Tcl_CmdDeleteProc *) nullptr);
   cvm::log("Redefining the Tcl \"cv\" command to the new script interface.\n");
 #endif
 }
@@ -57,7 +57,7 @@ colvarscript::~colvarscript()
 {
   if (cmd_names) {
     delete [] cmd_names;
-    cmd_names = NULL;
+    cmd_names = nullptr;
   }
 }
 
@@ -78,7 +78,7 @@ int colvarscript::init_commands()
 
   if (cmd_names) {
     delete [] cmd_names;
-    cmd_names = NULL;
+    cmd_names = nullptr;
   }
   cmd_names = new char const * [colvarscript::cv_n_commands];
 
@@ -192,7 +192,7 @@ char const *colvarscript::get_command_help(char const *cmd)
   }
   cvm::error("Error: command "+std::string(cmd)+
              " is not implemented.\n", COLVARS_INPUT_ERROR);
-  return NULL;
+  return nullptr;
 }
 
 
@@ -204,7 +204,7 @@ char const *colvarscript::get_command_rethelp(char const *cmd)
   }
   cvm::error("Error: command "+std::string(cmd)+
              " is not implemented.\n", COLVARS_INPUT_ERROR);
-  return NULL;
+  return nullptr;
 }
 
 
@@ -216,7 +216,7 @@ char const *colvarscript::get_command_arghelp(char const *cmd, int i)
   }
   cvm::error("Error: command "+std::string(cmd)+
              " is not implemented.\n", COLVARS_INPUT_ERROR);
-  return NULL;
+  return nullptr;
 }
 
 
@@ -252,7 +252,7 @@ char const *colvarscript::get_command_full_help(char const *cmd)
   }
   cvm::error("Error: command "+std::string(cmd)+
              " is not implemented.\n", COLVARS_INPUT_ERROR);
-  return NULL;
+  return nullptr;
 }
 
 
@@ -371,10 +371,10 @@ int colvarscript::run(int objc, unsigned char *const objv[])
   std::string cmdline(main_cmd+std::string(" ")+cmd);
 
   // Pointer to the function implementing it
-  int (*cmd_fn)(void *, int, unsigned char * const *) = NULL;
+  int (*cmd_fn)(void *, int, unsigned char * const *) = nullptr;
 
   // Pointer to object handling the command (the functions are C)
-  void *obj_for_cmd = NULL;
+  void *obj_for_cmd = nullptr;
 
   if (cmd == "colvar") {
 
@@ -386,7 +386,7 @@ int colvarscript::run(int objc, unsigned char *const objv[])
     std::string const name(obj_to_str(objv[2]));
     std::string const subcmd(obj_to_str(objv[3]));
     obj_for_cmd = reinterpret_cast<void *>(cvm::colvar_by_name(name));
-    if (obj_for_cmd == NULL) {
+    if (obj_for_cmd == nullptr) {
       if (subcmd != std::string("help")) {
         // Unless asking for help, a valid colvar name must be given
         add_error_msg("Colvar not found: " + name);
@@ -409,7 +409,7 @@ int colvarscript::run(int objc, unsigned char *const objv[])
     std::string const name(obj_to_str(objv[2]));
     std::string const subcmd(obj_to_str(objv[3]));
     obj_for_cmd = reinterpret_cast<void *>(cvm::bias_by_name(name));
-    if (obj_for_cmd == NULL) {
+    if (obj_for_cmd == nullptr) {
       if ((subcmd == "") || (subcmd != std::string("help"))) {
         // Unless asking for help, a valid bias name must be given
         add_error_msg("Bias not found: " + name);
@@ -519,7 +519,7 @@ int colvarscript::proc_features(colvardeps *obj,
   if ((subcmd == "get") || (subcmd == "set")) {
     std::vector<colvardeps::feature *> const &features = obj->features();
     std::string const req_feature(obj_to_str(objv[4]));
-    colvardeps::feature *f = NULL;
+    colvardeps::feature *f = nullptr;
     int fid = 0;
     for (fid = 0; fid < int(features.size()); fid++) {
       if (features[fid]->description ==
@@ -529,7 +529,7 @@ int colvarscript::proc_features(colvardeps *obj,
       }
     }
 
-    if (f == NULL) {
+    if (f == nullptr) {
 
       add_error_msg("Error: feature \""+req_feature+"\" does not exist.\n");
       return COLVARSCRIPT_ERROR;
@@ -614,7 +614,7 @@ extern "C"
 int run_colvarscript_command(int objc, unsigned char *const objv[])
 {
   colvarmodule *cv = cvm::main();
-  colvarscript *script = cv ? cv->proxy->script : NULL;
+  colvarscript *script = cv ? cv->proxy->script : nullptr;
   if (!script) {
     cvm::error("Called run_colvarscript_command without a script object.\n",
                COLVARS_BUG_ERROR);
@@ -631,7 +631,7 @@ const char * get_colvarscript_result()
   colvarscript *script = colvarscript_obj();
   if (!script) {
     cvm::error("Called get_colvarscript_result without a script object.\n");
-    return NULL;
+    return nullptr;
   }
   return script->str_result().c_str();
 }
@@ -653,7 +653,7 @@ extern "C" {
     proxy->set_tcl_interp(interp);
     proxy->colvars = colvars;
     Tcl_CreateObjCommand(interp, "cv", tcl_run_colvarscript_command,
-                         (ClientData *) NULL, (Tcl_CmdDeleteProc *) NULL);
+                         (ClientData *) nullptr, (Tcl_CmdDeleteProc *) nullptr);
     Tcl_EvalEx(interp, "package provide colvars", -1, 0);
     return TCL_OK;
   }
@@ -678,7 +678,7 @@ extern "C" int tcl_run_colvarscript_command(ClientData /* clientData */,
       if (!strcmp(Tcl_GetString(objv[1]), "delete") ||
           !strcmp(Tcl_GetString(objv[1]), "reset")) {
         // nothing to delete or reset
-        Tcl_SetResult(my_interp, NULL, TCL_STATIC);
+        Tcl_SetResult(my_interp, nullptr, TCL_STATIC);
       }
       if (!strcmp(Tcl_GetString(objv[1]), "help")) {
         // print message
@@ -753,7 +753,7 @@ extern "C" int tcl_run_colvarscript_command(ClientData /* clientData */,
                     TCL_STATIC);
     }
     delete proxy;
-    proxy = NULL;
+    proxy = nullptr;
   }
 
   return (retval == COLVARS_OK) ? TCL_OK : TCL_ERROR;

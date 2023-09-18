@@ -23,7 +23,7 @@
 
 colvarproxy_tcl::colvarproxy_tcl()
 {
-  tcl_interp_ = NULL;
+  tcl_interp_ = nullptr;
 }
 
 
@@ -36,7 +36,7 @@ void colvarproxy_tcl::init_tcl_pointers()
 {
   // This is overloaded by NAMD and VMD proxies to use the local interpreters
 #if defined(COLVARS_TCL)
-  if (tcl_interp_ == NULL) {
+  if (tcl_interp_ == nullptr) {
     // Allocate a dedicated Tcl interpreter for Colvars
     std::cout << "colvars: Allocating Tcl interpreter." << std::endl;
     set_tcl_interp(Tcl_CreateInterp());
@@ -55,7 +55,7 @@ char const *colvarproxy_tcl::tcl_get_str(void *obj)
   return Tcl_GetString(reinterpret_cast<Tcl_Obj *>(obj));
 #else
   (void) obj;
-  return NULL;
+  return nullptr;
 #endif
 }
 
@@ -98,7 +98,7 @@ int colvarproxy_tcl::tcl_run_force_callback()
 {
 #if defined(COLVARS_TCL)
   Tcl_Interp *const interp = get_tcl_interp();
-  if (Tcl_FindCommand(interp, "calc_colvar_forces", NULL, 0) == NULL) {
+  if (Tcl_FindCommand(interp, "calc_colvar_forces", nullptr, 0) == nullptr) {
     cvm::error("Error: Colvars force procedure calc_colvar_forces is not defined.\n");
     return COLVARS_ERROR;
   }
@@ -129,7 +129,7 @@ int colvarproxy_tcl::tcl_run_colvar_callback(
   size_t i;
 
   std::string cmd = std::string("calc_") + name;
-  if (Tcl_FindCommand(interp, cmd.c_str(), NULL, 0) == NULL) {
+  if (Tcl_FindCommand(interp, cmd.c_str(), nullptr, 0) == nullptr) {
     cvm::error("Error: scripted colvar procedure \"" + cmd + "\" is not defined.\n");
     return COLVARS_ERROR;
   }
@@ -176,7 +176,7 @@ int colvarproxy_tcl::tcl_run_colvar_gradient_callback(
   size_t i;
 
   std::string cmd = std::string("calc_") + name + "_gradient";
-  if (Tcl_FindCommand(interp, cmd.c_str(), NULL, 0) == NULL) {
+  if (Tcl_FindCommand(interp, cmd.c_str(), nullptr, 0) == nullptr) {
     cvm::error("Error: scripted colvar gradient procedure \"" + cmd + "\" is not defined.\n");
     return COLVARS_ERROR;
   }

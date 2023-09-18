@@ -124,21 +124,21 @@ int colvar_grid_count::write_opendx(std::string const &filename,
 
 
 colvar_grid_scalar::colvar_grid_scalar()
-  : colvar_grid<cvm::real>(), samples(NULL)
+  : colvar_grid<cvm::real>(), samples(nullptr)
 {}
 
 colvar_grid_scalar::colvar_grid_scalar(colvar_grid_scalar const &g)
-  : colvar_grid<cvm::real>(g), samples(NULL)
+  : colvar_grid<cvm::real>(g), samples(nullptr)
 {
 }
 
 colvar_grid_scalar::colvar_grid_scalar(std::vector<int> const &nx_i)
-  : colvar_grid<cvm::real>(nx_i, 0.0, 1), samples(NULL)
+  : colvar_grid<cvm::real>(nx_i, 0.0, 1), samples(nullptr)
 {
 }
 
 colvar_grid_scalar::colvar_grid_scalar(std::vector<colvar *> &colvars, bool margin)
-  : colvar_grid<cvm::real>(colvars, 0.0, 1, margin), samples(NULL)
+  : colvar_grid<cvm::real>(colvars, 0.0, 1, margin), samples(nullptr)
 {
 }
 
@@ -353,7 +353,7 @@ colvar_grid_gradient::colvar_grid_gradient(std::vector<colvar *> &colvars, std::
 
 colvar_grid_gradient::colvar_grid_gradient(std::string &filename)
   : colvar_grid<cvm::real>(),
-    samples(NULL)
+    samples(nullptr)
 {
   std::istream &is = cvm::main()->proxy->input_stream(filename,
                                                       "gradient file");

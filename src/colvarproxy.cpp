@@ -244,7 +244,7 @@ void colvarproxy_atom_groups::compute_max_atom_groups_applied_force()
 colvarproxy_smp::colvarproxy_smp()
 {
   b_smp_active = true; // May be disabled by user option
-  omp_lock_state = NULL;
+  omp_lock_state = nullptr;
 #if defined(_OPENMP)
   if (omp_get_thread_num() == 0) {
     omp_lock_state = new omp_lock_t;
@@ -406,16 +406,16 @@ int colvarproxy_smp::smp_unlock()
 
 colvarproxy_script::colvarproxy_script()
 {
-  script = NULL;
+  script = nullptr;
   have_scripts = false;
 }
 
 
 colvarproxy_script::~colvarproxy_script()
 {
-  if (script != NULL) {
+  if (script != nullptr) {
     delete script;
-    script = NULL;
+    script = nullptr;
   }
 }
 
@@ -445,7 +445,7 @@ int colvarproxy_script::run_colvar_gradient_callback(std::string const & /* name
 
 colvarproxy::colvarproxy()
 {
-  colvars = NULL;
+  colvars = nullptr;
   // By default, simulation engines allow to immediately request atoms
   engine_ready_ = true;
   b_simulation_running = true;
@@ -460,9 +460,9 @@ colvarproxy::colvarproxy()
 colvarproxy::~colvarproxy()
 {
   close_output_streams();
-  if (colvars != NULL) {
+  if (colvars != nullptr) {
     delete colvars;
-    colvars = NULL;
+    colvars = nullptr;
   }
   delete reinterpret_cast<std::list<std::pair<std::string, std::string> > *>(config_queue_);
 }

@@ -90,11 +90,11 @@ void colvar::map_total::calc_value()
   int flags = is_enabled(f_cvc_gradient) ? colvarproxy::volmap_flag_gradients :
     colvarproxy::volmap_flag_null;
 
-  if (atoms != NULL) {
+  if (atoms != nullptr) {
     // Compute the map inside Colvars
     x.real_value = 0.0;
 
-    cvm::real *w = NULL;
+    cvm::real *w = nullptr;
     if (atom_weights.size() > 0) {
       flags |= colvarproxy::volmap_flag_use_atom_field;
       w = &(atom_weights[0]);
