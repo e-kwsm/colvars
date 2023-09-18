@@ -176,9 +176,9 @@ void colvar::neuralNetwork::calc_gradients() {
             const cvm::real factor = nn->getGradient(m_output_index, i_cv);
             const cvm::real factor_polynomial = getPolynomialFactorOfCVGradient(i_cv);
             for (size_t j_elem = 0; j_elem < cv[i_cv]->value().size(); ++j_elem) {
-                for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
-                    for (size_t l_atom = 0; l_atom < (cv[i_cv]->atom_groups)[k_ag]->size(); ++l_atom) {
-                        (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad = factor_polynomial * factor * (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad;
+                for (auto &atom_group : cv[i_cv]->atom_groups) {
+                    for (auto &l_atom : *atom_group) {
+                        l_atom.grad = factor_polynomial * factor * l_atom.grad;
                     }
                 }
             }
@@ -191,8 +191,8 @@ void colvar::neuralNetwork::apply_force(colvarvalue const &force) {
         // If this CV us explicit gradients, then atomic gradients is already calculated
         // We can apply the force to atom groups directly
         if (cv[i_cv]->is_enabled(f_cvc_explicit_gradient)) {
-            for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
-                (cv[i_cv]->atom_groups)[k_ag]->apply_colvar_force(force.real_value);
+            for (auto &atom_group : cv[i_cv]->atom_groups) {
+                atom_group->apply_colvar_force(force.real_value);
             }
         } else {
             // Compute factors for polynomial combinations

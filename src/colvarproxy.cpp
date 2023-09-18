@@ -114,8 +114,8 @@ void colvarproxy_atoms::clear_atom(int index)
 size_t colvarproxy_atoms::get_num_active_atoms() const
 {
   size_t result = 0;
-  for (size_t i = 0; i < atoms_refcount.size(); i++) {
-    if (atoms_refcount[i] > 0) result++;
+  for (size_t i : atoms_refcount) {
+    if (i > 0) result++;
   }
   return result;
 }
@@ -219,8 +219,8 @@ void colvarproxy_atom_groups::clear_atom_group(int index)
 size_t colvarproxy_atom_groups::get_num_active_atom_groups() const
 {
   size_t result = 0;
-  for (size_t i = 0; i < atom_groups_refcount.size(); i++) {
-    if (atom_groups_refcount[i] > 0) result++;
+  for (size_t i : atom_groups_refcount) {
+    if (i > 0) result++;
   }
   return result;
 }

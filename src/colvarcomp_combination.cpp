@@ -34,9 +34,9 @@ int colvar::linearCombination::init(std::string const &conf)
     }
     // Sort all sub CVs by their names
     std::sort(cv.begin(), cv.end(), colvar::compare_cvc);
-    for (auto it_sub_cv = cv.begin(); it_sub_cv != cv.end(); ++it_sub_cv) {
-        for (auto it_atom_group = (*it_sub_cv)->atom_groups.begin(); it_atom_group != (*it_sub_cv)->atom_groups.end(); ++it_atom_group) {
-            register_atom_group(*it_atom_group);
+    for (auto &it_sub_cv : cv) {
+        for (auto &atom_group : it_sub_cv->atom_groups) {
+            register_atom_group(atom_group);
         }
     }
     // Show useful error messages and prevent crashes if no sub CVC is found
@@ -48,8 +48,8 @@ int colvar::linearCombination::init(std::string const &conf)
         x.reset();
     }
     use_explicit_gradients = true;
-    for (size_t i_cv = 0; i_cv < cv.size(); ++i_cv) {
-        if (!cv[i_cv]->is_enabled(f_cvc_explicit_gradient)) {
+    for (auto &i_cv : cv) {
+        if (!i_cv->is_enabled(f_cvc_explicit_gradient)) {
             use_explicit_gradients = false;
         }
     }
@@ -82,8 +82,8 @@ colvar::linearCombination::~linearCombination() {
     remove_all_children();
     // Then we remove the dependencies of the atom groups to the sub-CVCs
     // in their destructors.
-    for (auto it = cv.begin(); it != cv.end(); ++it) {
-        delete (*it);
+    for (auto &it : cv) {
+        delete it;
     }
     // The last step is cleaning up the list of atom groups.
     atom_groups.clear();
@@ -91,14 +91,14 @@ colvar::linearCombination::~linearCombination() {
 
 void colvar::linearCombination::calc_value() {
     x.reset();
-    for (size_t i_cv = 0; i_cv < cv.size(); ++i_cv) {
-        cv[i_cv]->calc_value();
-        colvarvalue current_cv_value(cv[i_cv]->value());
+    for (auto &i_cv : cv) {
+        i_cv->calc_value();
+        colvarvalue current_cv_value(i_cv->value());
         // polynomial combination allowed
         if (current_cv_value.type() == colvarvalue::type_scalar) {
-            x += cv[i_cv]->sup_coeff * (cvm::pow(current_cv_value.real_value, cv[i_cv]->sup_np));
+            x += i_cv->sup_coeff * (cvm::pow(current_cv_value.real_value, i_cv->sup_np));
         } else {
-            x += cv[i_cv]->sup_coeff * current_cv_value;
+            x += i_cv->sup_coeff * current_cv_value;
         }
     }
 }
@@ -109,9 +109,9 @@ void colvar::linearCombination::calc_gradients() {
         if (cv[i_cv]->is_enabled(f_cvc_explicit_gradient)) {
             cvm::real factor_polynomial = getPolynomialFactorOfCVGradient(i_cv);
             for (size_t j_elem = 0; j_elem < cv[i_cv]->value().size(); ++j_elem) {
-                for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
-                    for (size_t l_atom = 0; l_atom < (cv[i_cv]->atom_groups)[k_ag]->size(); ++l_atom) {
-                        (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad = factor_polynomial * (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad;
+                for (auto &atom_group : cv[i_cv]->atom_groups) {
+                    for (auto &l_atom : *atom_group) {
+                        l_atom.grad = factor_polynomial * l_atom.grad;
                     }
                 }
             }
@@ -124,8 +124,8 @@ void colvar::linearCombination::apply_force(colvarvalue const &force) {
         // If this CV us explicit gradients, then atomic gradients is already calculated
         // We can apply the force to atom groups directly
         if (cv[i_cv]->is_enabled(f_cvc_explicit_gradient)) {
-            for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
-                (cv[i_cv]->atom_groups)[k_ag]->apply_colvar_force(force.real_value);
+            for (auto &atom_group : cv[i_cv]->atom_groups) {
+                atom_group->apply_colvar_force(force.real_value);
             }
         } else {
             // Compute factors for polynomial combinations

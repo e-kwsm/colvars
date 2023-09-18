@@ -615,9 +615,8 @@ int colvarparse::check_keywords(std::string &conf, char const *key)
     uk = to_lower_cppstr(uk);
 
     bool found_keyword = false;
-    for (std::list<std::string>::iterator ki = allowed_keywords.begin();
-         ki != allowed_keywords.end(); ki++) {
-      if (uk == *ki) {
+    for (auto &allowed_keyword : allowed_keywords) {
+      if (uk == allowed_keyword) {
         found_keyword = true;
         break;
       }

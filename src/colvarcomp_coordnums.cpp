@@ -197,9 +197,9 @@ template<int flags> void colvar::coordnum::main_loop(bool **pairlist_elem)
   if (b_group2_center_only) {
     cvm::atom group2_com_atom;
     group2_com_atom.pos = group2->center_of_mass();
-    for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
+    for (auto &ai1 : *group1) {
       x.real_value += switching_function<flags>(r0, r0_vec, en, ed,
-                                                *ai1, group2_com_atom,
+                                                ai1, group2_com_atom,
                                                 pairlist_elem,
                                                 tolerance);
     }
@@ -207,10 +207,10 @@ template<int flags> void colvar::coordnum::main_loop(bool **pairlist_elem)
       group2->set_weighted_gradient(group2_com_atom.grad);
     }
   } else {
-    for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
-      for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
+    for (auto &ai1 : *group1) {
+      for (auto &ai2 : *group2) {
         x.real_value += switching_function<flags>(r0, r0_vec, en, ed,
-                                                  *ai1, *ai2,
+                                                  ai1, ai2,
                                                   pairlist_elem,
                                                   tolerance);
       }

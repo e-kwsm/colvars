@@ -109,10 +109,10 @@ int colvar::CartesianBasedPath::init(std::string const &conf)
 }
 
 colvar::CartesianBasedPath::~CartesianBasedPath() {
-    for (auto it_comp_atoms = comp_atoms.begin(); it_comp_atoms != comp_atoms.end(); ++it_comp_atoms) {
-        if (*it_comp_atoms != nullptr) {
-            delete (*it_comp_atoms);
-            (*it_comp_atoms) = nullptr;
+    for (auto &comp_atom : comp_atoms) {
+        if (comp_atom != nullptr) {
+            delete comp_atom;
+            comp_atom = nullptr;
         }
     }
     // Avoid double-freeing due to CVC-in-CVC construct
@@ -501,11 +501,11 @@ int colvar::CVBasedPath::init(std::string const &conf)
     std::sort(cv.begin(), cv.end(), colvar::compare_cvc);
     // Register atom groups and determine the colvar type for reference
     std::vector<colvarvalue> tmp_cv;
-    for (auto it_sub_cv = cv.begin(); it_sub_cv != cv.end(); ++it_sub_cv) {
-        for (auto it_atom_group = (*it_sub_cv)->atom_groups.begin(); it_atom_group != (*it_sub_cv)->atom_groups.end(); ++it_atom_group) {
-            register_atom_group(*it_atom_group);
+    for (auto &it_sub_cv : cv) {
+        for (auto &atom_group : it_sub_cv->atom_groups) {
+            register_atom_group(atom_group);
         }
-        colvarvalue tmp_i_cv((*it_sub_cv)->value());
+        colvarvalue tmp_i_cv(it_sub_cv->value());
         tmp_i_cv.reset();
         tmp_cv.push_back(tmp_i_cv);
     }
@@ -561,8 +561,8 @@ int colvar::CVBasedPath::init(std::string const &conf)
     }
 
     use_explicit_gradients = true;
-    for (size_t i_cv = 0; i_cv < cv.size(); ++i_cv) {
-        if (!cv[i_cv]->is_enabled(f_cvc_explicit_gradient)) {
+    for (auto &i_cv : cv) {
+        if (!i_cv->is_enabled(f_cvc_explicit_gradient)) {
             use_explicit_gradients = false;
         }
     }
@@ -574,8 +574,8 @@ int colvar::CVBasedPath::init(std::string const &conf)
 }
 
 void colvar::CVBasedPath::computeDistanceToReferenceFrames(std::vector<cvm::real>& result) {
-    for (size_t i_cv = 0; i_cv < cv.size(); ++i_cv) {
-        cv[i_cv]->calc_value();
+    for (auto &i_cv : cv) {
+        i_cv->calc_value();
     }
     for (size_t i_frame = 0; i_frame < ref_cv.size(); ++i_frame) {
         cvm::real rmsd_i = 0.0;
@@ -633,8 +633,8 @@ colvar::CVBasedPath::~CVBasedPath() {
     remove_all_children();
     // Then we remove the dependencies of the atom groups to the sub-CVCs
     // in their destructors.
-    for (auto it = cv.begin(); it != cv.end(); ++it) {
-        delete (*it);
+    for (auto &it : cv) {
+        delete it;
     }
     // The last step is cleaning up the list of atom groups.
     atom_groups.clear();
@@ -764,11 +764,11 @@ void colvar::gspathCV::calc_gradients() {
                 tmp_cv_grad_v2[j_elem] = sign * 0.5 * dfdv2[i_cv][j_elem] / M;
                 // Apply the gradients to the atom groups in i-th cv
                 // Loop over all atom groups
-                for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
+                for (auto &atom_group : cv[i_cv]->atom_groups) {
                     // Loop over all atoms in the k-th atom group
-                    for (size_t l_atom = 0; l_atom < (cv[i_cv]->atom_groups)[k_ag]->size(); ++l_atom) {
+                    for (auto &l_atom : *atom_group) {
                         // Chain rule
-                        (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad = factor_polynomial * ((*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad * tmp_cv_grad_v1[j_elem] + (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad * tmp_cv_grad_v2[j_elem]);
+                        l_atom.grad = factor_polynomial * (l_atom.grad * tmp_cv_grad_v1[j_elem] + l_atom.grad * tmp_cv_grad_v2[j_elem]);
                     }
                 }
             }
@@ -781,8 +781,8 @@ void colvar::gspathCV::apply_force(colvarvalue const &force) {
         // If this CV us explicit gradients, then atomic gradients is already calculated
         // We can apply the force to atom groups directly
         if (cv[i_cv]->is_enabled(f_cvc_explicit_gradient)) {
-            for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
-                (cv[i_cv]->atom_groups)[k_ag]->apply_colvar_force(force.real_value);
+            for (auto &atom_group : cv[i_cv]->atom_groups) {
+                atom_group->apply_colvar_force(force.real_value);
             }
         } else {
             // Temporary variables storing gradients
@@ -903,11 +903,11 @@ void colvar::gzpathCV::calc_gradients() {
             for (size_t j_elem = 0; j_elem < cv[i_cv]->value().size(); ++j_elem) {
                 // Apply the gradients to the atom groups in i-th cv
                 // Loop over all atom groups
-                for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
+                for (auto &atom_group : cv[i_cv]->atom_groups) {
                     // Loop over all atoms in the k-th atom group
-                    for (size_t l_atom = 0; l_atom < (cv[i_cv]->atom_groups)[k_ag]->size(); ++l_atom) {
+                    for (auto &l_atom : *atom_group) {
                         // Chain rule
-                        (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad = factor_polynomial * ((*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad * tmp_cv_grad_v1[j_elem] + (*(cv[i_cv]->atom_groups)[k_ag])[l_atom].grad * tmp_cv_grad_v2[j_elem]);
+                        l_atom.grad = factor_polynomial * (l_atom.grad * tmp_cv_grad_v1[j_elem] + l_atom.grad * tmp_cv_grad_v2[j_elem]);
                     }
                 }
             }
@@ -920,8 +920,8 @@ void colvar::gzpathCV::apply_force(colvarvalue const &force) {
         // If this CV us explicit gradients, then atomic gradients is already calculated
         // We can apply the force to atom groups directly
         if (cv[i_cv]->is_enabled(f_cvc_explicit_gradient)) {
-            for (size_t k_ag = 0 ; k_ag < cv[i_cv]->atom_groups.size(); ++k_ag) {
-                (cv[i_cv]->atom_groups)[k_ag]->apply_colvar_force(force.real_value);
+            for (auto &atom_group : cv[i_cv]->atom_groups) {
+                atom_group->apply_colvar_force(force.real_value);
             }
         } else {
             colvarvalue tmp_cv_grad_v1 = -1.0 * dzdv1[i_cv];
