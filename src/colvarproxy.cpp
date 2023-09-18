@@ -513,7 +513,7 @@ int colvarproxy::parse_module_config()
 {
   int error_code = COLVARS_OK;
   // Read any configuration queued up for Colvars
-  std::list<std::pair<std::string, std::string> > *config_queue = reinterpret_cast<std::list<std::pair<std::string, std::string> > *>(config_queue_);
+  auto *config_queue = reinterpret_cast<std::list<std::pair<std::string, std::string> > *>(config_queue_);
   while (config_queue->size() > 0) {
     std::pair<std::string, std::string> const &p = config_queue->front();
     if (p.first == "config") {

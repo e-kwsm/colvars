@@ -561,13 +561,13 @@ void colvarparse::strip_values(std::string &conf)
   size_t offset = 0;
   data_begin_pos.sort();
   data_end_pos.sort();
-  std::list<size_t>::iterator data_begin_pos_last = std::unique(data_begin_pos.begin(), data_begin_pos.end());
+  auto data_begin_pos_last = std::unique(data_begin_pos.begin(), data_begin_pos.end());
   data_begin_pos.erase(data_begin_pos_last, data_begin_pos.end());
-  std::list<size_t>::iterator data_end_pos_last = std::unique(data_end_pos.begin(), data_end_pos.end());
+  auto data_end_pos_last = std::unique(data_end_pos.begin(), data_end_pos.end());
   data_end_pos.erase(data_end_pos_last, data_end_pos.end());
 
-  std::list<size_t>::iterator data_begin = data_begin_pos.begin();
-  std::list<size_t>::iterator data_end   = data_end_pos.begin();
+  auto data_begin = data_begin_pos.begin();
+  auto data_end   = data_end_pos.begin();
 
   for ( ; (data_begin != data_begin_pos.end()) &&
           (data_end   != data_end_pos.end()) ;
@@ -615,7 +615,7 @@ int colvarparse::check_keywords(std::string &conf, char const *key)
     uk = to_lower_cppstr(uk);
 
     bool found_keyword = false;
-    for (std::list<std::string>::iterator ki = allowed_keywords.begin();
+    for (auto ki = allowed_keywords.begin();
          ki != allowed_keywords.end(); ki++) {
       if (uk == *ki) {
         found_keyword = true;
@@ -992,7 +992,7 @@ int colvarparse::check_ascii(std::string const &conf)
   std::string line;
   std::istringstream is(conf);
   while (cvm::getline(is, line)) {
-    unsigned char const * const uchars =
+    auto const * const uchars =
       reinterpret_cast<unsigned char const *>(line.c_str());
     for (size_t i = 0; i < line.size(); i++) {
       if (uchars[i] & 0x80U) {
