@@ -208,7 +208,7 @@ std::istream &colvarproxy_io::input_stream(std::string const &input_name,
   }
 
   if (colvarproxy_io::input_stream_exists(input_name)) {
-    std::ifstream *ifs =
+    auto *ifs =
       dynamic_cast<std::ifstream *>(input_streams_[input_name]);
     if (ifs && !ifs->is_open()) {
       // This file was opened before, re-open it.  Using std::ios::binary to
@@ -243,13 +243,13 @@ colvarproxy_io::input_stream_from_string(std::string const &input_name,
 
   if (colvarproxy_io::input_stream_exists(input_name)) {
 
-    std::istringstream *iss =
+    auto *iss =
       dynamic_cast<std::istringstream *>(input_streams_[input_name]);
     if (iss) {
       // If there is already a stringstream, replace it
       delete iss;
     } else {
-      std::ifstream *ifs =
+      auto *ifs =
         dynamic_cast<std::ifstream *>(input_streams_[input_name]);
       if (ifs) {
         if (ifs->is_open()) {
@@ -274,14 +274,14 @@ bool colvarproxy_io::input_stream_exists(std::string const &input_name)
 int colvarproxy_io::close_input_stream(std::string const &input_name)
 {
   if (colvarproxy_io::input_stream_exists(input_name)) {
-    std::ifstream *ifs = dynamic_cast<std::ifstream *>(input_streams_[input_name]);
+    auto *ifs = dynamic_cast<std::ifstream *>(input_streams_[input_name]);
     if (ifs) {
       if (ifs->is_open()) {
         ifs->close();
       }
     } else {
       // From a string, just rewind to the begining
-      std::istringstream * iss = dynamic_cast<std::istringstream *>(input_streams_[input_name]);
+      auto * iss = dynamic_cast<std::istringstream *>(input_streams_[input_name]);
       if (iss) {
         iss->clear();
         iss->seekg(0);
@@ -297,11 +297,11 @@ int colvarproxy_io::close_input_stream(std::string const &input_name)
 int colvarproxy_io::delete_input_stream(std::string const &input_name)
 {
   if (colvarproxy_io::close_input_stream(input_name) == COLVARS_OK) {
-    std::ifstream *ifs = dynamic_cast<std::ifstream *>(input_streams_[input_name]);
+    auto *ifs = dynamic_cast<std::ifstream *>(input_streams_[input_name]);
     if (ifs) {
       delete ifs;
     } else {
-      std::istringstream * iss = dynamic_cast<std::istringstream *>(input_streams_[input_name]);
+      auto * iss = dynamic_cast<std::istringstream *>(input_streams_[input_name]);
       if (iss) {
         delete iss;
       }
@@ -316,8 +316,7 @@ int colvarproxy_io::delete_input_stream(std::string const &input_name)
 
 int colvarproxy_io::close_input_streams()
 {
-  for (std::map<std::string,
-         std::istream *>::iterator ii = input_streams_.begin();
+  for (auto ii = input_streams_.begin();
        ii != input_streams_.end();
        ii++) {
     delete ii->second;
@@ -330,8 +329,7 @@ int colvarproxy_io::close_input_streams()
 std::list<std::string> colvarproxy_io::list_input_stream_names() const
 {
   std::list<std::string> result;
-  for (std::map<std::string,
-         std::istream *>::const_iterator ii = input_streams_.begin();
+  for (auto ii = input_streams_.begin();
        ii != input_streams_.end();
        ii++) {
     result.push_back(ii->first);
@@ -397,7 +395,7 @@ int colvarproxy_io::flush_output_streams()
     return COLVARS_OK;
   }
 
-  for (std::map<std::string, std::ostream *>::iterator osi = output_streams_.begin();
+  for (auto osi = output_streams_.begin();
        osi != output_streams_.end();
        osi++) {
     (dynamic_cast<std::ofstream *>(osi->second))->flush();
@@ -430,7 +428,7 @@ int colvarproxy_io::close_output_streams()
     return COLVARS_OK;
   }
 
-  for (std::map<std::string, std::ostream *>::iterator osi = output_streams_.begin();
+  for (auto osi = output_streams_.begin();
        osi != output_streams_.end();
        osi++) {
     (dynamic_cast<std::ofstream *>(osi->second))->close();

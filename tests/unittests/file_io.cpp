@@ -7,7 +7,7 @@
 
 extern "C" int main(int argc, char *argv[]) {
 
-  colvarproxy *proxy = new colvarproxy();
+  auto *proxy = new colvarproxy();
   proxy->colvars = new colvarmodule(proxy);
 
   proxy->backup_file("nonexistent.txt");
