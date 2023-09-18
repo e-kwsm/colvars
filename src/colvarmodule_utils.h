@@ -31,7 +31,7 @@ inline cvm::real get_force_norm2(cvm::real const &x)
 
 template <typename T, int flag, bool get_index>
 cvm::real compute_norm2_stats(std::vector<T> const &v,
-                              int *minmax_index = NULL)
+                              int *minmax_index = nullptr)
 {
   cvm::real result = 0.0;
   if (flag == -1) {

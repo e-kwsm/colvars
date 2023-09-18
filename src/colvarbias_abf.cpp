@@ -20,16 +20,16 @@ colvarbias_abf::colvarbias_abf(char const *key)
     b_UI_estimator(false),
     b_CZAR_estimator(false),
     pabf_freq(0),
-    system_force(NULL),
-    gradients(NULL),
-    samples(NULL),
-    pmf(NULL),
-    z_gradients(NULL),
-    z_samples(NULL),
-    czar_gradients(NULL),
-    czar_pmf(NULL),
-    last_gradients(NULL),
-    last_samples(NULL)
+    system_force(nullptr),
+    gradients(nullptr),
+    samples(nullptr),
+    pmf(nullptr),
+    z_gradients(nullptr),
+    z_samples(nullptr),
+    czar_gradients(nullptr),
+    czar_pmf(nullptr),
+    last_gradients(nullptr),
+    last_samples(nullptr)
 {
   colvarproxy *proxy = cvm::main()->proxy;
   if (!proxy->total_forces_same_step()) {
@@ -287,37 +287,37 @@ colvarbias_abf::~colvarbias_abf()
 {
   if (samples) {
     delete samples;
-    samples = NULL;
+    samples = nullptr;
   }
 
   if (gradients) {
     delete gradients;
-    gradients = NULL;
+    gradients = nullptr;
   }
 
   if (pmf) {
     delete pmf;
-    pmf = NULL;
+    pmf = nullptr;
   }
 
   if (z_samples) {
     delete z_samples;
-    z_samples = NULL;
+    z_samples = nullptr;
   }
 
   if (z_gradients) {
     delete z_gradients;
-    z_gradients = NULL;
+    z_gradients = nullptr;
   }
 
   if (czar_gradients) {
     delete czar_gradients;
-    czar_gradients = NULL;
+    czar_gradients = nullptr;
   }
 
   if (czar_pmf) {
     delete czar_pmf;
-    czar_pmf = NULL;
+    czar_pmf = nullptr;
   }
 
   // shared ABF
@@ -325,17 +325,17 @@ colvarbias_abf::~colvarbias_abf()
   // but now we can call shared externally
   if (last_samples) {
     delete last_samples;
-    last_samples = NULL;
+    last_samples = nullptr;
   }
 
   if (last_gradients) {
     delete last_gradients;
-    last_gradients = NULL;
+    last_gradients = nullptr;
   }
 
   if (system_force) {
     delete [] system_force;
-    system_force = NULL;
+    system_force = nullptr;
   }
 }
 
@@ -503,7 +503,7 @@ int colvarbias_abf::update()
   }
 
   /// Compute the bias energy
-  int error_code = calc_energy(NULL);
+  int error_code = calc_energy(nullptr);
 
   return error_code;
 }
@@ -870,10 +870,10 @@ int colvarbias_abf::calc_energy(std::vector<colvarvalue> const *values)
 {
   bias_energy = 0.0; // default value, overridden if a value can be calculated
 
-  if (num_variables() > 1 || values != NULL) {
+  if (num_variables() > 1 || values != nullptr) {
     // Use simple estimate: neglect effect of fullSamples,
     // return value at center of bin
-    if (pmf != NULL) {
+    if (pmf != nullptr) {
       std::vector<int> const curr_bin = values ?
         pmf->get_colvars_index(*values) :
         pmf->get_colvars_index();

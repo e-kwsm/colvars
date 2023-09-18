@@ -20,7 +20,7 @@ colvar::map_total::map_total()
   set_function_type("mapTotal");
   volmap_id = -1;
   volmap_index = -1;
-  atoms = NULL;
+  atoms = nullptr;
   x.type(colvarvalue::type_scalar);
 }
 
@@ -31,7 +31,7 @@ colvar::map_total::map_total(std::string const &conf)
   set_function_type("mapTotal");
   volmap_id = -1;
   volmap_index = -1;
-  atoms = NULL;
+  atoms = nullptr;
   x.type(colvarvalue::type_scalar);
   map_total::init(conf);
 }
@@ -54,7 +54,7 @@ int colvar::map_total::init(std::string const &conf)
 
   // Parse optional group
   atoms = parse_group(conf, "atoms", true);
-  if (atoms != NULL) {
+  if (atoms != nullptr) {
 
     // Using internal selection
     if (volmap_name.size()) {
@@ -77,7 +77,7 @@ int colvar::map_total::init(std::string const &conf)
   }
 
   if (get_keyval(conf, "atomWeights", atom_weights, atom_weights)) {
-    if (atoms == NULL) {
+    if (atoms == nullptr) {
       error_code |= cvm::error("Error: weights can only be assigned when atoms "
                                "are selected explicitly in Colvars.\n",
                                COLVARS_INPUT_ERROR);
@@ -106,11 +106,11 @@ void colvar::map_total::calc_value()
   int flags = is_enabled(f_cvc_gradient) ? colvarproxy::volmap_flag_gradients :
     colvarproxy::volmap_flag_null;
 
-  if (atoms != NULL) {
+  if (atoms != nullptr) {
     // Compute the map inside Colvars
     x.real_value = 0.0;
 
-    cvm::real *w = NULL;
+    cvm::real *w = nullptr;
     if (atom_weights.size() > 0) {
       flags |= colvarproxy::volmap_flag_use_atom_field;
       w = &(atom_weights[0]);

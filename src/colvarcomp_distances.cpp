@@ -968,7 +968,7 @@ colvar::rmsd::rmsd(std::string const &conf)
   }
 
   bool b_Jacobian_derivative = true;
-  if (atoms->fitting_group != NULL && b_Jacobian_derivative) {
+  if (atoms->fitting_group != nullptr && b_Jacobian_derivative) {
     cvm::log("The option \"fittingGroup\" (alternative group for fitting) was enabled: "
               "Jacobian derivatives of the RMSD will not be calculated.\n");
     b_Jacobian_derivative = false;
@@ -1531,7 +1531,7 @@ colvar::cartesian::cartesian(std::string const &conf)
   x.type(colvarvalue::type_vector);
   disable(f_cvc_explicit_gradient);
   // Don't try to access atoms if creation of the atom group failed
-  if (atoms != NULL) x.vector1d_value.resize(atoms->size() * axes.size());
+  if (atoms != nullptr) x.vector1d_value.resize(atoms->size() * axes.size());
 }
 
 
