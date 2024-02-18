@@ -954,11 +954,11 @@ int colvar::init_components(std::string const &conf)
   }
 
   // iterate over all available CVC in the map
-  for (auto it = global_cvc_map.begin(); it != global_cvc_map.end(); ++it) {
-    error_code |= init_components_type(conf, it->first.c_str());
+  for (auto & it : global_cvc_map) {
+    error_code |= init_components_type(conf, it.first.c_str());
     // TODO: is it better to check the error code here?
     if (error_code != COLVARS_OK) {
-      cvm::log("Failed to initialize " + it->first + " with the following configuration:\n");
+      cvm::log("Failed to initialize " + it.first + " with the following configuration:\n");
       cvm::log(conf);
       // TODO: should it stop here?
       break;
@@ -968,8 +968,8 @@ int colvar::init_components(std::string const &conf)
   if (!cvcs.size()) {
     std::string msg("Error: no valid components were provided for this collective variable.\n");
     msg += "Currently available component types are: \n";
-    for (auto it = global_cvc_desc_map.begin(); it != global_cvc_desc_map.end(); ++it) {
-      msg += "    " + it->first + " -- " + it->second + "\n";
+    for (auto & it : global_cvc_desc_map) {
+      msg += "    " + it.first + " -- " + it.second + "\n";
     }
     msg += "\nPlease note that some of the above types may still be unavailable, irrespective of this error.\n";
     error_code |= cvm::error(msg, COLVARS_INPUT_ERROR);
@@ -1022,16 +1022,16 @@ void colvar::build_atom_list(void)
   // If atomic gradients are requested, build full list of atom ids from all cvcs
   std::list<int> temp_id_list;
 
-  for (size_t i = 0; i < cvcs.size(); i++) {
-    for (size_t j = 0; j < cvcs[i]->atom_groups.size(); j++) {
-      cvm::atom_group const &ag = *(cvcs[i]->atom_groups[j]);
-      for (size_t k = 0; k < ag.size(); k++) {
-        temp_id_list.push_back(ag[k].id);
+  for (auto & cvc : cvcs) {
+    for (auto & j : cvc->atom_groups) {
+      cvm::atom_group const &ag = *j;
+      for (const auto & k : ag) {
+        temp_id_list.push_back(k.id);
       }
       if (ag.is_enabled(f_ag_fitting_group) && ag.is_enabled(f_ag_fit_gradients)) {
         cvm::atom_group const &fg = *(ag.fitting_group);
-        for (size_t k = 0; k < fg.size(); k++) {
-          temp_id_list.push_back(fg[k].id);
+        for (const auto & k : fg) {
+          temp_id_list.push_back(k.id);
         }
       }
     }
@@ -1306,8 +1306,8 @@ void colvar::setup()
 std::vector<std::vector<int> > colvar::get_atom_lists()
 {
   std::vector<std::vector<int> > lists;
-  for (size_t i = 0; i < cvcs.size(); i++) {
-    std::vector<std::vector<int> > li = cvcs[i]->get_atom_lists();
+  for (auto & cvc : cvcs) {
+    std::vector<std::vector<int> > li = cvc->get_atom_lists();
     lists.insert(lists.end(), li.begin(), li.end());
   }
   return lists;
@@ -1543,17 +1543,17 @@ int colvar::collect_cvc_values()
 
   } else if (x.type() == colvarvalue::type_scalar) {
     // polynomial combination allowed
-    for (size_t i = 0; i < cvcs.size(); i++) {
-      if (!cvcs[i]->is_enabled()) continue;
-      x += (cvcs[i])->sup_coeff *
-      ( ((cvcs[i])->sup_np != 1) ?
-        cvm::integer_power((cvcs[i])->value().real_value, (cvcs[i])->sup_np) :
-        (cvcs[i])->value().real_value );
+    for (auto & cvc : cvcs) {
+      if (!cvc->is_enabled()) continue;
+      x += cvc->sup_coeff *
+      ( (cvc->sup_np != 1) ?
+        cvm::integer_power(cvc->value().real_value, cvc->sup_np) :
+        cvc->value().real_value );
     }
   } else {
-    for (size_t i = 0; i < cvcs.size(); i++) {
-      if (!cvcs[i]->is_enabled()) continue;
-      x += (cvcs[i])->sup_coeff * (cvcs[i])->value();
+    for (auto & cvc : cvcs) {
+      if (!cvc->is_enabled()) continue;
+      x += cvc->sup_coeff * cvc->value();
     }
   }
 
@@ -1621,8 +1621,8 @@ int colvar::collect_cvc_gradients()
   size_t i;
   if (is_enabled(f_cv_collect_gradient)) {
     // Collect the atomic gradients inside colvar object
-    for (unsigned int a = 0; a < atomic_gradients.size(); a++) {
-      atomic_gradients[a].reset();
+    for (auto & atomic_gradient : atomic_gradients) {
+      atomic_gradient.reset();
     }
     for (i = 0; i < cvcs.size(); i++) {
       if (!cvcs[i]->is_enabled()) continue;
@@ -2125,9 +2125,9 @@ int colvar::set_cvc_flags(std::vector<bool> const &flags)
 void colvar::update_active_cvc_square_norm()
 {
   active_cvc_square_norm = 0.0;
-  for (size_t i = 0; i < cvcs.size(); i++) {
-    if (cvcs[i]->is_enabled()) {
-      active_cvc_square_norm += cvcs[i]->sup_coeff * cvcs[i]->sup_coeff;
+  for (auto & cvc : cvcs) {
+    if (cvc->is_enabled()) {
+      active_cvc_square_norm += cvc->sup_coeff * cvc->sup_coeff;
     }
   }
 }

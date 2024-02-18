@@ -352,8 +352,8 @@ colvar::cvc::~cvc()
 {
   free_children_deps();
   remove_all_children();
-  for (size_t i = 0; i < atom_groups.size(); i++) {
-    if (atom_groups[i] != NULL) delete atom_groups[i];
+  for (auto & atom_group : atom_groups) {
+    if (atom_group != NULL) delete atom_group;
   }
 }
 
@@ -478,27 +478,27 @@ void colvar::cvc::collect_gradients(std::vector<int> const &atom_ids, std::vecto
   cvm::real coeff = sup_coeff * cvm::real(sup_np) *
     cvm::integer_power(value().real_value, sup_np-1);
 
-  for (size_t j = 0; j < atom_groups.size(); j++) {
+  for (auto & j : atom_groups) {
 
-    cvm::atom_group &ag = *(atom_groups[j]);
+    cvm::atom_group &ag = *j;
 
     // If necessary, apply inverse rotation to get atomic
     // gradient in the laboratory frame
     if (ag.is_enabled(f_ag_rotate)) {
       const auto rot_inv = ag.rot.inverse().matrix();
 
-      for (size_t k = 0; k < ag.size(); k++) {
+      for (auto & k : ag) {
         size_t a = std::lower_bound(atom_ids.begin(), atom_ids.end(),
-                                    ag[k].id) - atom_ids.begin();
-        atomic_gradients[a] += coeff * (rot_inv * ag[k].grad);
+                                    k.id) - atom_ids.begin();
+        atomic_gradients[a] += coeff * (rot_inv * k.grad);
       }
 
     } else {
 
-      for (size_t k = 0; k < ag.size(); k++) {
+      for (auto & k : ag) {
         size_t a = std::lower_bound(atom_ids.begin(), atom_ids.end(),
-                                    ag[k].id) - atom_ids.begin();
-        atomic_gradients[a] += coeff * ag[k].grad;
+                                    k.id) - atom_ids.begin();
+        atomic_gradients[a] += coeff * k.grad;
       }
     }
     if (ag.is_enabled(f_ag_fitting_group) && ag.is_enabled(f_ag_fit_gradients)) {
@@ -561,8 +561,7 @@ void colvar::cvc::debug_gradients()
 
   cvm::log("Debugging gradients for " + description);
 
-  for (size_t ig = 0; ig < atom_groups.size(); ig++) {
-    cvm::atom_group *group = atom_groups[ig];
+  for (auto group : atom_groups) {
     if (group->b_dummy) continue;
 
     const auto rot_0 = group->rot.matrix();

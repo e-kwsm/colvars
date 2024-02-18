@@ -487,11 +487,9 @@ int colvarproxy_io::close_output_streams()
     return COLVARS_OK;
   }
 
-  for (std::map<std::string, std::ostream *>::iterator osi = output_streams_.begin();
-       osi != output_streams_.end();
-       osi++) {
-    (dynamic_cast<std::ofstream *>(osi->second))->close();
-    delete osi->second;
+  for (auto & output_stream : output_streams_) {
+    (dynamic_cast<std::ofstream *>(output_stream.second))->close();
+    delete output_stream.second;
   }
   output_streams_.clear();
 
