@@ -1111,7 +1111,7 @@ void cvm::atom_group::read_velocities()
   if (is_enabled(f_ag_rotate)) {
 
     const auto rot_mat = rot.matrix();
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+    for (auto ai = this->begin(); ai != this->end(); ai++) {
       ai->read_velocity();
       ai->vel = rot_mat * ai->vel;
     }
@@ -1133,7 +1133,7 @@ void cvm::atom_group::read_total_forces()
   if (is_enabled(f_ag_rotate)) {
 
     const auto rot_mat = rot.matrix();
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+    for (auto ai = this->begin(); ai != this->end(); ai++) {
       ai->read_total_force();
       ai->total_force = rot_mat * ai->total_force;
     }
@@ -1410,7 +1410,7 @@ void cvm::atom_group::apply_colvar_force(cvm::real const &force)
 
     // rotate forces back to the original frame
     const auto rot_inv = rot.inverse().matrix();
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+    for (auto ai = this->begin(); ai != this->end(); ai++) {
       ai->apply_force(rot_inv * (force * ai->grad));
     }
 
@@ -1455,7 +1455,7 @@ void cvm::atom_group::apply_force(cvm::rvector const &force)
   if (is_enabled(f_ag_rotate)) {
 
     const auto rot_inv = rot.inverse().matrix();
-    for (cvm::atom_iter ai = this->begin(); ai != this->end(); ai++) {
+    for (auto ai = this->begin(); ai != this->end(); ai++) {
       ai->apply_force(rot_inv * ((ai->mass/total_mass) * force));
     }
 
