@@ -859,11 +859,11 @@ int colvarmodule::calc()
 
     if (output_prefix().size()) {
       cvm::increase_depth();
-      for (std::vector<colvar *>::iterator cvi = colvars.begin(); cvi != colvars.end(); cvi++) {
+      for (auto cvi = colvars.begin(); cvi != colvars.end(); cvi++) {
         // TODO remove this when corrFunc becomes a bias
         error_code |= (*cvi)->write_output_files();
       }
-      for (std::vector<colvarbias *>::iterator bi = biases.begin(); bi != biases.end(); bi++) {
+      for (auto bi = biases.begin(); bi != biases.end(); bi++) {
         error_code |= (*bi)->write_state_to_replicas();
       }
       cvm::decrease_depth();
@@ -1510,7 +1510,7 @@ int colvarmodule::setup_output()
     cv_traj_name =
         (output_prefix().size() ? std::string(output_prefix() + ".colvars.traj") : std::string(""));
 
-    for (std::vector<colvarbias *>::iterator bi = biases.begin();
+    for (auto bi = biases.begin();
          bi != biases.end();
          bi++) {
       error_code |= (*bi)->setup_output();
@@ -1655,7 +1655,7 @@ std::istream & colvarmodule::read_objects_state(std::istream &is)
       if (word == "colvar") {
 
         cvm::increase_depth();
-        for (std::vector<colvar *>::iterator cvi = colvars.begin(); cvi != colvars.end(); cvi++) {
+        for (auto cvi = colvars.begin(); cvi != colvars.end(); cvi++) {
           if (!((*cvi)->read_state(is))) {
             // Here an error signals that the variable is a match, but the
             // state is corrupt; otherwise, the variable rewinds is silently
@@ -1710,12 +1710,12 @@ cvm::memory_stream &colvarmodule::read_objects_state(cvm::memory_stream &is)
 {
   // An unformatted stream must match the objects' exact configuration
   cvm::increase_depth();
-  for (std::vector<colvar *>::iterator cvi = colvars.begin(); cvi != colvars.end(); cvi++) {
+  for (auto cvi = colvars.begin(); cvi != colvars.end(); cvi++) {
     if (!(*cvi)->read_state(is)) {
       return is;
     }
   }
-  for (std::vector<colvarbias *>::iterator bi = biases.begin(); bi != biases.end(); bi++) {
+  for (auto bi = biases.begin(); bi != biases.end(); bi++) {
     if (!(*bi)->read_state(is)) {
       return is;
     }
