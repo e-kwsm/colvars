@@ -638,10 +638,8 @@ size_t colvarmodule::num_variables() const
 size_t colvarmodule::num_variables_feature(int feature_id) const
 {
   size_t n = 0;
-  for (std::vector<colvar *>::const_iterator cvi = colvars.begin();
-       cvi != colvars.end();
-       cvi++) {
-    if ((*cvi)->is_enabled(feature_id)) {
+  for (auto cvi : colvars) {
+    if (cvi->is_enabled(feature_id)) {
       n++;
     }
   }
@@ -658,10 +656,8 @@ size_t colvarmodule::num_biases() const
 size_t colvarmodule::num_biases_feature(int feature_id) const
 {
   size_t n = 0;
-  for (std::vector<colvarbias *>::const_iterator bi = biases.begin();
-       bi != biases.end();
-       bi++) {
-    if ((*bi)->is_enabled(feature_id)) {
+  for (auto biase : biases) {
+    if (biase->is_enabled(feature_id)) {
       n++;
     }
   }
@@ -672,10 +668,8 @@ size_t colvarmodule::num_biases_feature(int feature_id) const
 size_t colvarmodule::num_biases_type(std::string const &type) const
 {
   size_t n = 0;
-  for (std::vector<colvarbias *>::const_iterator bi = biases.begin();
-       bi != biases.end();
-       bi++) {
-    if ((*bi)->bias_type == type) {
+  for (auto biase : biases) {
+    if (biase->bias_type == type) {
       n++;
     }
   }
@@ -714,11 +708,9 @@ int colvarmodule::catch_input_errors(int result)
 colvarbias * colvarmodule::bias_by_name(std::string const &name)
 {
   colvarmodule *cv = cvm::main();
-  for (std::vector<colvarbias *>::iterator bi = cv->biases.begin();
-       bi != cv->biases.end();
-       bi++) {
-    if ((*bi)->name == name) {
-      return (*bi);
+  for (auto & biase : cv->biases) {
+    if (biase->name == name) {
+      return biase;
     }
   }
   return NULL;
@@ -728,11 +720,9 @@ colvarbias * colvarmodule::bias_by_name(std::string const &name)
 colvar *colvarmodule::colvar_by_name(std::string const &name)
 {
   colvarmodule *cv = cvm::main();
-  for (std::vector<colvar *>::iterator cvi = cv->colvars.begin();
-       cvi != cv->colvars.end();
-       cvi++) {
-    if ((*cvi)->name == name) {
-      return (*cvi);
+  for (auto & cvi : cv->colvars) {
+    if (cvi->name == name) {
+      return cvi;
     }
   }
   return NULL;
@@ -742,11 +732,9 @@ colvar *colvarmodule::colvar_by_name(std::string const &name)
 cvm::atom_group *colvarmodule::atom_group_by_name(std::string const &name)
 {
   colvarmodule *cv = cvm::main();
-  for (std::vector<cvm::atom_group *>::iterator agi = cv->named_atom_groups.begin();
-       agi != cv->named_atom_groups.end();
-       agi++) {
-    if ((*agi)->name == name) {
-      return (*agi);
+  for (auto & named_atom_group : cv->named_atom_groups) {
+    if (named_atom_group->name == name) {
+      return named_atom_group;
     }
   }
   return NULL;
@@ -856,12 +844,12 @@ int colvarmodule::calc()
 
     if (output_prefix().size()) {
       cvm::increase_depth();
-      for (std::vector<colvar *>::iterator cvi = colvars.begin(); cvi != colvars.end(); cvi++) {
+      for (auto & cvi : colvars) {
         // TODO remove this when corrFunc becomes a bias
-        error_code |= (*cvi)->write_output_files();
+        error_code |= cvi->write_output_files();
       }
-      for (std::vector<colvarbias *>::iterator bi = biases.begin(); bi != biases.end(); bi++) {
-        error_code |= (*bi)->write_state_to_replicas();
+      for (auto & biase : biases) {
+        error_code |= biase->write_state_to_replicas();
       }
       cvm::decrease_depth();
     }
@@ -869,13 +857,11 @@ int colvarmodule::calc()
 
   // Write output files for biases, at the specified frequency for each
   cvm::increase_depth();
-  for (std::vector<colvarbias *>::iterator bi = biases.begin();
-       bi != biases.end();
-       bi++) {
-    if ((*bi)->output_freq > 0) {
+  for (auto & biase : biases) {
+    if (biase->output_freq > 0) {
       if ((cvm::step_relative() > 0) &&
-          ((cvm::step_absolute() % (*bi)->output_freq) == 0) ) {
-        error_code |= (*bi)->write_output_files();
+          ((cvm::step_absolute() % biase->output_freq) == 0) ) {
+        error_code |= biase->write_output_files();
       }
     }
   }
@@ -994,9 +980,8 @@ int colvarmodule::calc_biases()
     cvm::log("Updating collective variable biases.\n");
 
   // set biasing forces to zero before biases are calculated and summed over
-  for (std::vector<colvar *>::iterator cvi = colvars.begin();
-       cvi != colvars.end(); cvi++) {
-    (*cvi)->reset_bias_force();
+  for (auto & cvi : colvars) {
+    cvi->reset_bias_force();
   }
 
   std::vector<colvarbias *>::iterator bi;
@@ -1232,20 +1217,16 @@ int colvarmodule::analyze()
   }
 
   // perform colvar-specific analysis
-  for (std::vector<colvar *>::iterator cvi = variables_active()->begin();
-       cvi != variables_active()->end();
-       cvi++) {
+  for (auto & cvi : *variables_active()) {
     cvm::increase_depth();
-    (*cvi)->analyze();
+    cvi->analyze();
     cvm::decrease_depth();
   }
 
   // perform bias-specific analysis
-  for (std::vector<colvarbias *>::iterator bi = biases.begin();
-       bi != biases.end();
-       bi++) {
+  for (auto & biase : biases) {
     cvm::increase_depth();
-    (*bi)->analyze();
+    biase->analyze();
     cvm::decrease_depth();
   }
 
@@ -1259,20 +1240,16 @@ int colvarmodule::end_of_step()
     cvm::log("colvarmodule::end_of_step(), step = "+cvm::to_str(it)+".\n");
   }
 
-  for (std::vector<colvar *>::iterator cvi = variables_active()->begin();
-       cvi != variables_active()->end();
-       cvi++) {
+  for (auto & cvi : *variables_active()) {
     cvm::increase_depth();
-    (*cvi)->end_of_step();
+    cvi->end_of_step();
     cvm::decrease_depth();
   }
 
   // perform bias-specific analysis
-  for (std::vector<colvarbias *>::iterator bi = biases.begin();
-       bi != biases.end();
-       bi++) {
+  for (auto & biase : biases) {
     cvm::increase_depth();
-    (*bi)->end_of_step();
+    biase->end_of_step();
     cvm::decrease_depth();
   }
 
@@ -1291,9 +1268,8 @@ int colvarmodule::update_engine_parameters()
              ", integration timestep = " + cvm::to_str(dt()) + "\n");
   }
   cvm::log("Updating atomic parameters (masses, charges, etc).\n");
-  for (std::vector<colvar *>::iterator cvi = variables()->begin(); cvi != variables()->end();
-       cvi++) {
-    (*cvi)->setup();
+  for (auto & cvi : *variables()) {
+    cvi->setup();
   }
   return (cvm::get_error() ? COLVARS_ERROR : COLVARS_OK);
 }
@@ -1507,10 +1483,8 @@ int colvarmodule::setup_output()
     cv_traj_name =
         (output_prefix().size() ? std::string(output_prefix() + ".colvars.traj") : std::string(""));
 
-    for (std::vector<colvarbias *>::iterator bi = biases.begin();
-         bi != biases.end();
-         bi++) {
-      error_code |= (*bi)->setup_output();
+    for (auto & biase : biases) {
+      error_code |= biase->setup_output();
     }
   }
 
@@ -1652,12 +1626,12 @@ std::istream & colvarmodule::read_objects_state(std::istream &is)
       if (word == "colvar") {
 
         cvm::increase_depth();
-        for (std::vector<colvar *>::iterator cvi = colvars.begin(); cvi != colvars.end(); cvi++) {
-          if (!((*cvi)->read_state(is))) {
+        for (auto & cvi : colvars) {
+          if (!(cvi->read_state(is))) {
             // Here an error signals that the variable is a match, but the
             // state is corrupt; otherwise, the variable rewinds is silently
             cvm::error("Error: in reading state for collective variable \"" +
-                           (*cvi)->name + "\" at position " + cvm::to_str(is.tellg()) +
+                           cvi->name + "\" at position " + cvm::to_str(is.tellg()) +
                            " in stream.\n",
                        COLVARS_INPUT_ERROR);
           }
@@ -1669,17 +1643,15 @@ std::istream & colvarmodule::read_objects_state(std::istream &is)
       } else {
 
         cvm::increase_depth();
-        for (std::vector<colvarbias *>::iterator bi = biases.begin();
-             bi != biases.end();
-             bi++) {
-          if (((*bi)->state_keyword != word) && (*bi)->bias_type != word) {
+        for (auto & biase : biases) {
+          if ((biase->state_keyword != word) && biase->bias_type != word) {
             // Skip biases with different type; state_keyword is used to
             // support different versions of the state file format
             continue;
           }
-          if (!((*bi)->read_state(is))) {
+          if (!(biase->read_state(is))) {
             // Same as above, an error means a match but the state is incorrect
-            cvm::error("Error: in reading state for bias \"" + (*bi)->name + "\" at position " +
+            cvm::error("Error: in reading state for bias \"" + biase->name + "\" at position " +
                            cvm::to_str(is.tellg()) + " in stream.\n",
                        COLVARS_INPUT_ERROR);
           }
@@ -1707,13 +1679,13 @@ cvm::memory_stream &colvarmodule::read_objects_state(cvm::memory_stream &is)
 {
   // An unformatted stream must match the objects' exact configuration
   cvm::increase_depth();
-  for (std::vector<colvar *>::iterator cvi = colvars.begin(); cvi != colvars.end(); cvi++) {
-    if (!(*cvi)->read_state(is)) {
+  for (auto & cvi : colvars) {
+    if (!cvi->read_state(is)) {
       return is;
     }
   }
-  for (std::vector<colvarbias *>::iterator bi = biases.begin(); bi != biases.end(); bi++) {
-    if (!(*bi)->read_state(is)) {
+  for (auto & biase : biases) {
+    if (!biase->read_state(is)) {
       return is;
     }
   }
@@ -1756,16 +1728,14 @@ int colvarmodule::write_output_files()
 {
   int error_code = COLVARS_OK;
   cvm::increase_depth();
-  for (std::vector<colvarbias *>::iterator bi = biases.begin();
-       bi != biases.end();
-       bi++) {
+  for (auto & biase : biases) {
     // Only write output files if they have not already been written this time step
-    if ((*bi)->output_freq == 0    ||
+    if (biase->output_freq == 0    ||
         cvm::step_relative() == 0  ||
-        (cvm::step_absolute() % (*bi)->output_freq) != 0) {
-      error_code |= (*bi)->write_output_files();
+        (cvm::step_absolute() % biase->output_freq) != 0) {
+      error_code |= biase->write_output_files();
     }
-    error_code |= (*bi)->write_state_to_replicas();
+    error_code |= biase->write_state_to_replicas();
   }
   cvm::decrease_depth();
   return error_code;
@@ -1824,11 +1794,9 @@ int colvarmodule::read_traj(char const *traj_filename,
           return COLVARS_ERROR;
         }
 
-        for (std::vector<colvar *>::iterator cvi = colvars.begin();
-             cvi != colvars.end();
-             cvi++) {
-          if (!(*cvi)->read_traj(is)) {
-            cvm::error("Error: in reading colvar \""+(*cvi)->name+
+        for (auto & cvi : colvars) {
+          if (!cvi->read_traj(is)) {
+            cvm::error("Error: in reading colvar \""+cvi->name+
                        "\" from trajectory file \""+
                        std::string(traj_filename)+"\".\n",
                        COLVARS_FILE_ERROR);
@@ -1866,16 +1834,12 @@ template <typename OST> OST &colvarmodule::write_state_template_(OST &os)
   int error_code = COLVARS_OK;
 
   cvm::increase_depth();
-  for (std::vector<colvar *>::iterator cvi = colvars.begin();
-       cvi != colvars.end();
-       cvi++) {
-    (*cvi)->write_state(os);
+  for (auto & cvi : colvars) {
+    cvi->write_state(os);
   }
 
-  for (std::vector<colvarbias *>::iterator bi = biases.begin();
-       bi != biases.end();
-       bi++) {
-    (*bi)->write_state(os);
+  for (auto & biase : biases) {
+    biase->write_state(os);
   }
   cvm::decrease_depth();
 
@@ -1921,15 +1885,11 @@ std::ostream &colvarmodule::write_traj_label(std::ostream &os)
      << " ";
 
   cvm::increase_depth();
-  for (std::vector<colvar *>::iterator cvi = colvars.begin();
-       cvi != colvars.end();
-       cvi++) {
-    (*cvi)->write_traj_label(os);
+  for (auto & cvi : colvars) {
+    cvi->write_traj_label(os);
   }
-  for (std::vector<colvarbias *>::iterator bi = biases.begin();
-       bi != biases.end();
-       bi++) {
-    (*bi)->write_traj_label(os);
+  for (auto & biase : biases) {
+    biase->write_traj_label(os);
   }
   os << "\n";
 
@@ -1946,15 +1906,11 @@ std::ostream & colvarmodule::write_traj(std::ostream &os)
      << " ";
 
   cvm::increase_depth();
-  for (std::vector<colvar *>::iterator cvi = colvars.begin();
-       cvi != colvars.end();
-       cvi++) {
-    (*cvi)->write_traj(os);
+  for (auto & cvi : colvars) {
+    cvi->write_traj(os);
   }
-  for (std::vector<colvarbias *>::iterator bi = biases.begin();
-       bi != biases.end();
-       bi++) {
-    (*bi)->write_traj(os);
+  for (auto & biase : biases) {
+    biase->write_traj(os);
   }
   os << "\n";
 

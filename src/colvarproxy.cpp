@@ -310,8 +310,7 @@ int colvarproxy_smp::smp_biases_loop()
 #pragma omp parallel
   {
 #pragma omp for
-    for (int i = 0; i < static_cast<int>(cv->biases_active()->size()); i++) {
-      colvarbias *b = (*(cv->biases_active()))[i];
+    for (auto b : *cv->biases_active()) {
       if (cvm::debug()) {
         cvm::log("Calculating bias \""+b->name+"\" on thread "+
                  cvm::to_str(smp_thread_id())+"\n");
@@ -337,8 +336,7 @@ int colvarproxy_smp::smp_biases_script_loop()
       cv->calc_scripted_forces();
     }
 #pragma omp for
-    for (int i = 0; i < static_cast<int>(cv->biases_active()->size()); i++) {
-      colvarbias *b = (*(cv->biases_active()))[i];
+    for (auto b : *cv->biases_active()) {
       if (cvm::debug()) {
         cvm::log("Calculating bias \""+b->name+"\" on thread "+
                  cvm::to_str(smp_thread_id())+"\n");
