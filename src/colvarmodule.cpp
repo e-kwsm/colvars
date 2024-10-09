@@ -2246,7 +2246,7 @@ int cvm::load_coords_xyz(char const *filename,
       + ") than expected (" + cvm::to_str(pos->size()) + ").", COLVARS_INPUT_ERROR);
   }
 
-  std::vector<atom_pos>::iterator pos_i = pos->begin();
+  auto pos_i = pos->begin();
   size_t xyz_natoms = 0;
   if (pos->size() < natoms) { // Use specified indices
     int next = 0; // indices are zero-based
@@ -2263,7 +2263,7 @@ int cvm::load_coords_xyz(char const *filename,
         + ") than expected (" + cvm::to_str(atoms->sorted_ids().back()) + ").", COLVARS_INPUT_ERROR);
     }
 
-    std::vector<int>::const_iterator index = atoms->sorted_ids().begin();
+    auto index = atoms->sorted_ids().begin();
 
     for ( ; pos_i != pos->end() ; pos_i++, index++) {
       while ( next < *index ) {
