@@ -330,17 +330,17 @@ cvm::real colvar_grid_scalar::grid_rmsd(colvar_grid_scalar const &other_grid) co
 
 
 colvar_grid_gradient::colvar_grid_gradient()
-  : colvar_grid<cvm::real>(), samples(NULL), full_samples(0), min_samples(0)
+  : colvar_grid<cvm::real>(), samples(nullptr), full_samples(0), min_samples(0)
 {}
 
 
 colvar_grid_gradient::colvar_grid_gradient(std::vector<int> const &nx_i)
-  : colvar_grid<cvm::real>(nx_i, 0.0, nx_i.size()), samples(NULL), full_samples(0), min_samples(0)
+  : colvar_grid<cvm::real>(nx_i, 0.0, nx_i.size()), samples(nullptr), full_samples(0), min_samples(0)
 {}
 
 
 colvar_grid_gradient::colvar_grid_gradient(std::vector<colvar *> &colvars)
-  : colvar_grid<cvm::real>(colvars, 0.0, colvars.size()), samples(NULL), full_samples(0), min_samples(0)
+  : colvar_grid<cvm::real>(colvars, 0.0, colvars.size()), samples(nullptr), full_samples(0), min_samples(0)
 {}
 
 
