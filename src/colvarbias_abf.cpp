@@ -19,7 +19,7 @@ colvarbias_abf::colvarbias_abf(char const *key)
     b_UI_estimator(false),
     b_CZAR_estimator(false),
     pabf_freq(0),
-    system_force(NULL)
+    system_force(nullptr)
 {
 }
 
