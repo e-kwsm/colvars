@@ -834,7 +834,7 @@ bool colvarparse::key_lookup(std::string const &conf,
     }
 
     // data_end < data_begin means that the data or block contains only whitespace
-    if (data != NULL && data_end > data_begin) {
+    if (data != nullptr && data_end > data_begin) {
       data->append(line, data_begin, (data_end-data_begin));
 
       if (cvm::debug()) {
