@@ -487,13 +487,13 @@ int colvar::CVBasedPath::init(std::string const &conf)
     if (error_code != COLVARS_OK) return error_code;
 
     // Lookup all available sub-cvcs
-    for (auto it_cv_map = colvar::get_global_cvc_map().begin(); it_cv_map != colvar::get_global_cvc_map().end(); ++it_cv_map) {
-        if (key_lookup(conf, it_cv_map->first.c_str())) {
+    for (const auto & it_cv_map : colvar::get_global_cvc_map()) {
+        if (key_lookup(conf, it_cv_map.first.c_str())) {
             std::vector<std::string> sub_cvc_confs;
-            get_key_string_multi_value(conf, it_cv_map->first.c_str(), sub_cvc_confs);
-            for (auto it_sub_cvc_conf = sub_cvc_confs.begin(); it_sub_cvc_conf != sub_cvc_confs.end(); ++it_sub_cvc_conf) {
-                cv.push_back((it_cv_map->second)());
-                cv.back()->init(*(it_sub_cvc_conf));
+            get_key_string_multi_value(conf, it_cv_map.first.c_str(), sub_cvc_confs);
+            for (auto & sub_cvc_conf : sub_cvc_confs) {
+                cv.push_back((it_cv_map.second)());
+                cv.back()->init(sub_cvc_conf);
             }
         }
     }

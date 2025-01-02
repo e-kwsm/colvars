@@ -438,9 +438,9 @@ int colvar::distance_inv::init(std::string const &conf)
     error_code |= cvm::error("Error: negative or zero exponent provided.\n", COLVARS_INPUT_ERROR);
   }
 
-  for (cvm::atom_iter ai1 = group1->begin(); ai1 != group1->end(); ai1++) {
-    for (cvm::atom_iter ai2 = group2->begin(); ai2 != group2->end(); ai2++) {
-      if (ai1->id == ai2->id) {
+  for (auto & ai1 : *group1) {
+    for (auto & ai2 : *group2) {
+      if (ai1.id == ai2.id) {
         error_code |= cvm::error("Error: group1 and group2 have some atoms in common: this is not "
                                  "allowed for distanceInv.\n",
                                  COLVARS_INPUT_ERROR);
