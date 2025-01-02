@@ -10,6 +10,7 @@
 #ifndef COLVARGRID_H
 #define COLVARGRID_H
 
+#include <cassert>
 #include <iosfwd>
 #include <memory>
 
