@@ -891,9 +891,7 @@ int colvarbias_abf::read_gradients_samples()
     czar_gradients_in.reset(new colvar_grid_gradient(colvars, z_samples));
   }
 
-  for ( size_t i = 0; i < input_prefix.size(); i++ ) {
-    std::string prefix = input_prefix[i];
-
+  for (auto prefix : input_prefix) {
     // For user-provided files, the per-bias naming scheme may not apply
     err |= samples->read_multicol(prefix + ".count", "ABF samples file", true);
     err |= gradients->read_multicol(prefix + ".grad", "ABF gradient file", true);

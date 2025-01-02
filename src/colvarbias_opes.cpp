@@ -238,12 +238,12 @@ int colvarbias_opes::init(const std::string& conf) {
   if (m_pmf_grid_on) {
     std::vector<std::string> pmf_cv_name;
     get_keyval(conf, "pmfColvars", pmf_cv_name);
-    for (auto it = pmf_cv_name.begin(); it != pmf_cv_name.end(); ++it) {
+    for (auto & it : pmf_cv_name) {
       bool found = false;
       for (size_t i = 0; i < num_variables(); ++i) {
-        if (variables(i)->name == (*it)) {
+        if (variables(i)->name == it) {
           if (variables(i)->enable(f_cv_grid) != COLVARS_OK) {
-            return cvm::error("CV " + (*it) + " does not support grid\n");
+            return cvm::error("CV " + it + " does not support grid\n");
           }
           m_pmf_cvs.push_back(variables(i));
           found = true;
@@ -251,7 +251,7 @@ int colvarbias_opes::init(const std::string& conf) {
         }
       }
       if (!found) {
-        return cvm::error("CV " + (*it) + " not found\n");
+        return cvm::error("CV " + it + " not found\n");
       }
     }
     m_reweight_grid = std::unique_ptr<colvar_grid_scalar>(new colvar_grid_scalar(m_pmf_cvs));
@@ -385,8 +385,8 @@ cvm::real colvarbias_opes::getProbAndDerivatives(
   std::vector<cvm::real> dist(num_variables(), 0);
   if (!m_nlist) {
     if (m_num_threads == 1 || m_kernels.size() < 2 * m_num_threads) {
-      for (size_t k = 0; k < m_kernels.size(); ++k) {
-        prob += evaluateKernel(m_kernels[k], cv, der_prob, dist);
+      for (const auto & m_kernel : m_kernels) {
+        prob += evaluateKernel(m_kernel, cv, der_prob, dist);
       }
     } else {
 #if defined(_OPENMP)
@@ -395,8 +395,8 @@ cvm::real colvarbias_opes::getProbAndDerivatives(
         std::vector<cvm::real> omp_deriv(der_prob.size(), 0);
         std::vector<cvm::real> tmp_dist(num_variables());
         #pragma omp for reduction(+:prob) nowait
-        for (int k = 0; k < static_cast<int>(m_kernels.size()); ++k) {
-          prob += evaluateKernel(m_kernels[k], cv, omp_deriv, tmp_dist);
+        for (const auto & m_kernel : m_kernels) {
+          prob += evaluateKernel(m_kernel, cv, omp_deriv, tmp_dist);
         }
         #pragma omp critical
         for (int i = 0; i < static_cast<int>(num_variables()); ++i) {
@@ -437,8 +437,7 @@ cvm::real colvarbias_opes::getProbAndDerivatives(
     }
   } else {
     if (m_num_threads == 1 || m_nlist_index.size() < 2 * m_num_threads) {
-      for (size_t nk = 0; nk < m_nlist_index.size(); ++nk) {
-        const size_t k = m_nlist_index[nk];
+      for (unsigned long k : m_nlist_index) {
         prob += evaluateKernel(m_kernels[k], cv, der_prob, dist);
       }
     } else {
@@ -448,8 +447,7 @@ cvm::real colvarbias_opes::getProbAndDerivatives(
         std::vector<cvm::real> omp_deriv(der_prob.size(), 0);
         std::vector<cvm::real> tmp_dist(num_variables());
         #pragma omp for reduction(+:prob) nowait
-        for (int nk = 0; nk < static_cast<int>(m_nlist_index.size()); ++nk) {
-          const size_t k = m_nlist_index[nk];
+        for (unsigned long k : m_nlist_index) {
           prob += evaluateKernel(m_kernels[k], cv, omp_deriv, tmp_dist);
         }
         #pragma omp critical
@@ -572,8 +570,8 @@ int colvarbias_opes::update_opes() {
       cvm::proxy->replica_comm_barrier();
       // PE 0 sum all sum_heights and broadcast
       if (cvm::proxy->replica_index() == 0) {
-        for (auto it = replica_sum_heights.begin(); it != replica_sum_heights.end(); ++it) {
-          sum_heights += (*it);
+        for (double & replica_sum_height : replica_sum_heights) {
+          sum_heights += replica_sum_height;
         }
         for (int p = 1; p < cvm::proxy->num_replicas(); ++p) {
           if (cvm::proxy->replica_comm_send((char*)&sum_heights, sizeof(cvm::real), p) != sizeof(cvm::real)) {
@@ -602,8 +600,8 @@ int colvarbias_opes::update_opes() {
       cvm::proxy->replica_comm_barrier();
       // PE 0 sum all sum_heights2 and broadcast
       if (cvm::proxy->replica_index() == 0) {
-        for (auto it = replica_sum_heights2.begin(); it != replica_sum_heights2.end(); ++it) {
-          sum_heights2 += (*it);
+        for (double & it : replica_sum_heights2) {
+          sum_heights2 += it;
         }
         for (int p = 1; p < cvm::proxy->num_replicas(); ++p) {
           if (cvm::proxy->replica_comm_send((char*)&sum_heights2, sizeof(cvm::real), p) != sizeof(cvm::real)) {
@@ -903,8 +901,8 @@ int colvarbias_opes::update_opes() {
           cvm::proxy->replica_comm_barrier();
           // Deduplicate and sort the merged neighbor list
           std::unordered_set<size_t> all_nlist_index_set;
-          for (auto it = all_nlist_index.cbegin(); it != all_nlist_index.cend(); ++it) {
-            all_nlist_index_set.insert(*it);
+          for (unsigned long it : all_nlist_index) {
+            all_nlist_index_set.insert(it);
           }
           m_nlist_index.assign(all_nlist_index_set.begin(), all_nlist_index_set.end());
           std::sort(m_nlist_index.begin(), m_nlist_index.end());
@@ -937,9 +935,9 @@ int colvarbias_opes::update_opes() {
       const bool few_kernels = (ks * ks < (3 * ks * ds + 2 * ds * ds * num_parallel + 100));
       if (few_kernels) {
         if (m_num_threads == 1) {
-          for (size_t k = 0; k < m_kernels.size(); ++k) {
-            for (size_t kk = 0; kk < m_kernels.size(); ++kk) {
-              sum_uprob += evaluateKernel(m_kernels[kk], m_kernels[k].m_center);
+          for (auto & m_kernel : m_kernels) {
+            for (const auto & kk : m_kernels) {
+              sum_uprob += evaluateKernel(kk, m_kernel.m_center);
             }
           }
         } else {
@@ -947,9 +945,9 @@ int colvarbias_opes::update_opes() {
           #pragma omp parallel num_threads(m_num_threads)
           {
             #pragma omp for reduction(+:sum_uprob) nowait
-            for (int k = 0; k < static_cast<int>(m_kernels.size()); ++k) {
-              for (int kk = 0; kk < static_cast<int>(m_kernels.size()); ++kk) {
-                sum_uprob += evaluateKernel(m_kernels[kk], m_kernels[k].m_center);
+            for (auto & m_kernel : m_kernels) {
+              for (const auto & kk : m_kernels) {
+                sum_uprob += evaluateKernel(kk, m_kernel.m_center);
               }
             }
           }
@@ -981,10 +979,10 @@ int colvarbias_opes::update_opes() {
         cvm::real delta_sum_uprob = 0;
         if (!m_nlist) {
           if (m_num_threads == 1) {
-            for (size_t i = 0; i < m_kernels.size(); ++i) {
-              for (size_t d = 0; d < m_delta_kernels.size(); ++d) {
-                const int sign = m_delta_kernels[d].m_height < 0 ? -1 : 1;
-                delta_sum_uprob += evaluateKernel(m_delta_kernels[d], m_kernels[i].m_center) + sign * evaluateKernel(m_kernels[i], m_delta_kernels[d].m_center);
+            for (auto & m_kernel : m_kernels) {
+              for (auto & m_delta_kernel : m_delta_kernels) {
+                const int sign = m_delta_kernel.m_height < 0 ? -1 : 1;
+                delta_sum_uprob += evaluateKernel(m_delta_kernel, m_kernel.m_center) + sign * evaluateKernel(m_kernel, m_delta_kernel.m_center);
               }
             }
           } else {
@@ -992,10 +990,10 @@ int colvarbias_opes::update_opes() {
             #pragma omp parallel num_threads(m_num_threads)
             {
               #pragma omp for reduction(+:delta_sum_uprob) nowait
-              for (int i = 0; i < static_cast<int>(m_kernels.size()); ++i) {
-                for (int d = 0; d < static_cast<int>(m_delta_kernels.size()); ++d) {
-                  const int sign = m_delta_kernels[d].m_height < 0 ? -1 : 1;
-                  delta_sum_uprob += evaluateKernel(m_delta_kernels[d], m_kernels[i].m_center) + sign * evaluateKernel(m_kernels[i], m_delta_kernels[d].m_center);
+              for (auto & m_kernel : m_kernels) {
+                for (auto & m_delta_kernel : m_delta_kernels) {
+                  const int sign = m_delta_kernel.m_height < 0 ? -1 : 1;
+                  delta_sum_uprob += evaluateKernel(m_delta_kernel, m_kernel.m_center) + sign * evaluateKernel(m_kernel, m_delta_kernel.m_center);
                 }
               }
             }
@@ -1022,11 +1020,10 @@ int colvarbias_opes::update_opes() {
           }
         } else {
           if (m_num_threads == 1) {
-            for (size_t i = 0; i < m_nlist_index.size(); ++i) {
-              const size_t k = m_nlist_index[i];
-              for (size_t d = 0; d < m_delta_kernels.size(); ++d) {
-                const double sign = m_delta_kernels[d].m_height < 0 ? -1 : 1;
-                delta_sum_uprob += evaluateKernel(m_delta_kernels[d], m_kernels[k].m_center) + sign * evaluateKernel(m_kernels[k], m_delta_kernels[d].m_center);
+            for (unsigned long k : m_nlist_index) {
+              for (auto & m_delta_kernel : m_delta_kernels) {
+                const double sign = m_delta_kernel.m_height < 0 ? -1 : 1;
+                delta_sum_uprob += evaluateKernel(m_delta_kernel, m_kernels[k].m_center) + sign * evaluateKernel(m_kernels[k], m_delta_kernel.m_center);
               }
             }
           } else {
@@ -1034,11 +1031,10 @@ int colvarbias_opes::update_opes() {
             #pragma omp parallel num_threads(m_num_threads)
             {
               #pragma omp for reduction(+:delta_sum_uprob) nowait
-              for (int i = 0; i < static_cast<int>(m_nlist_index.size()); ++i) {
-                const size_t k = m_nlist_index[i];
-                for (int d = 0; d < static_cast<int>(m_delta_kernels.size()); ++d) {
-                  const double sign = m_delta_kernels[d].m_height < 0 ? -1 : 1;
-                  delta_sum_uprob += evaluateKernel(m_delta_kernels[d], m_kernels[k].m_center) + sign * evaluateKernel(m_kernels[k], m_delta_kernels[d].m_center);
+              for (unsigned long k : m_nlist_index) {
+                for (auto & m_delta_kernel : m_delta_kernels) {
+                  const double sign = m_delta_kernel.m_height < 0 ? -1 : 1;
+                  delta_sum_uprob += evaluateKernel(m_delta_kernel, m_kernels[k].m_center) + sign * evaluateKernel(m_kernels[k], m_delta_kernel.m_center);
                 }
               }
             }
@@ -1069,10 +1065,10 @@ int colvarbias_opes::update_opes() {
           return cvm::error("Unimplemented feature: OPES in parallel running.\n");
         }
         if (m_num_threads == 1) {
-          for (size_t d = 0; d < m_delta_kernels.size(); ++d) {
-            for (size_t dd = 0; dd < m_delta_kernels.size(); ++dd) {
-              const int sign = m_delta_kernels[d].m_height < 0 ? -1 : 1;
-              delta_sum_uprob -= sign *evaluateKernel(m_delta_kernels[dd], m_delta_kernels[d].m_center);
+          for (auto & m_delta_kernel : m_delta_kernels) {
+            for (const auto & dd : m_delta_kernels) {
+              const int sign = m_delta_kernel.m_height < 0 ? -1 : 1;
+              delta_sum_uprob -= sign *evaluateKernel(dd, m_delta_kernel.m_center);
             }
           }
         } else {
@@ -1080,10 +1076,10 @@ int colvarbias_opes::update_opes() {
           #pragma omp parallel num_threads(m_num_threads)
           {
             #pragma omp for reduction(+:delta_sum_uprob)
-            for (int d = 0; d < static_cast<int>(m_delta_kernels.size()); ++d) {
-              for (int dd = 0; dd < static_cast<int>(m_delta_kernels.size()); ++dd) {
-                const int sign = m_delta_kernels[d].m_height < 0 ? -1 : 1;
-                delta_sum_uprob -= sign * evaluateKernel(m_delta_kernels[dd], m_delta_kernels[d].m_center);
+            for (auto & m_delta_kernel : m_delta_kernels) {
+              for (const auto & dd : m_delta_kernels) {
+                const int sign = m_delta_kernel.m_height < 0 ? -1 : 1;
+                delta_sum_uprob -= sign * evaluateKernel(dd, m_delta_kernel.m_center);
               }
             }
           }
@@ -1600,8 +1596,7 @@ size_t colvarbias_opes::getMergeableKernel(const std::vector<cvm::real>& giver_c
     if (m_num_threads == 1) {
       // size_t min_k_omp = min_k;
       // cvm::real min_norm2_omp = m_compression_threshold2;
-      for (size_t nk = 0; nk < m_nlist_index.size(); ++nk) {
-        const size_t k = m_nlist_index[nk];
+      for (unsigned long k : m_nlist_index) {
         if (k == giver_k) continue;
         double norm2 = 0;
         for (size_t i = 0; i < num_variables(); ++i) {
@@ -1620,8 +1615,7 @@ size_t colvarbias_opes::getMergeableKernel(const std::vector<cvm::real>& giver_c
         size_t min_k_omp = min_k;
         cvm::real min_norm2_omp = m_compression_threshold2;
         #pragma omp for nowait
-        for (int nk = 0; nk < static_cast<int>(m_nlist_index.size()); ++nk) {
-          const size_t k = m_nlist_index[nk];
+        for (unsigned long k : m_nlist_index) {
           if (k == giver_k) continue;
           double norm2 = 0;
           for (int i = 0; i < static_cast<int>(num_variables()); ++i) {
@@ -1795,9 +1789,9 @@ void hist_to_pmf(const cvm::real kbt, const std::unique_ptr<colvar_grid_scalar>&
   cvm::real norm_factor = 0;
   cvm::real max_prob = 0;
   auto& prob_data = hist->data;
-  for (auto it = prob_data.begin(); it != prob_data.end(); ++it) {
-    norm_factor += (*it);
-    if ((*it) > max_prob) max_prob = (*it);
+  for (double & it : prob_data) {
+    norm_factor += it;
+    if (it > max_prob) max_prob = it;
   }
   if (norm_factor > 0) {
     const cvm::real min_pmf = (max_prob > 0) ? -1.0 * kbt * cvm::logn(max_prob / norm_factor) : 0;
@@ -1958,9 +1952,9 @@ void colvarbias_opes::updateNlist(const std::vector<cvm::real>& center) {
     }
   }
   std::vector<cvm::real> dev2(num_variables(), 0);
-  for (size_t k = 0; k < m_nlist_index.size(); ++k) {
+  for (unsigned long k : m_nlist_index) {
     for (size_t i = 0; i < num_variables(); ++i) {
-      dev2[i] += variables(i)->dist2(m_nlist_center[i], m_kernels[m_nlist_index[k]].m_center[i]);
+      dev2[i] += variables(i)->dist2(m_nlist_center[i], m_kernels[k].m_center[i]);
     }
   }
   for (size_t i = 0; i < num_variables(); ++i) {

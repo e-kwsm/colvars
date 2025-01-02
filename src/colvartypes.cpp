@@ -368,9 +368,9 @@ void colvarmodule::rotation::calc_optimal_rotation_impl() {
 #endif
   if (ierror) {
     cvm::log("Failed to diagonalize the following overlapping matrix:\n");
-    for (size_t i = 0; i < 4; ++i) {
+    for (auto & i : S) {
       for (size_t j = 0; j < 4; ++j) {
-        cvm::log(cvm::to_str(S[i][j]) + " ");
+        cvm::log(cvm::to_str(i[j]) + " ");
       }
       cvm::log("\n");
     }
