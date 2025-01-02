@@ -443,8 +443,8 @@ int colvar::cvc::set_param(std::string const &param_name,
 void colvar::cvc::read_data()
 {
   if (is_enabled(f_cvc_explicit_atom_groups)) {
-    for (auto agi = atom_groups.begin(); agi != atom_groups.end(); agi++) {
-      cvm::atom_group &atoms = *(*agi);
+    for (auto & agi : atom_groups) {
+      cvm::atom_group &atoms = *agi;
       atoms.reset_atoms_data();
       atoms.read_positions();
       atoms.calc_required_properties();
@@ -533,8 +533,8 @@ void colvar::cvc::calc_Jacobian_derivative()
 void colvar::cvc::calc_fit_gradients()
 {
   if (is_enabled(f_cvc_explicit_gradient)) {
-    for (size_t ig = 0; ig < atom_groups.size(); ig++) {
-      atom_groups[ig]->calc_fit_gradients();
+    for (auto & atom_group : atom_groups) {
+      atom_group->calc_fit_gradients();
     }
   }
 }
@@ -543,9 +543,9 @@ void colvar::cvc::calc_fit_gradients()
 void colvar::cvc::apply_force(colvarvalue const &cvforce)
 {
   if (is_enabled(f_cvc_explicit_atom_groups)) {
-    for (auto agi = atom_groups.begin(); agi != atom_groups.end(); agi++) {
-      if (!(*agi)->noforce) {
-        (*agi)->apply_colvar_force(cvforce);
+    for (auto & atom_group : atom_groups) {
+      if (!atom_group->noforce) {
+        atom_group->apply_colvar_force(cvforce);
       }
     }
   }
